@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# @zodiac06 və @BakuUnderground üçün özəl dizayn
+# Bayraq düzəlişi və Sayğac əlavə edilmiş tam kod
 HTML = """
 <!DOCTYPE html>
 <html lang="az">
@@ -16,7 +16,8 @@ HTML = """
         :root { --primary: #00f2fe; --secondary: #4facfe; --bg: #0b0e11; --card: #151921; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px 15px; margin: 0; }
         .container { background: var(--card); border: 1px solid #2d333b; padding: 35px; border-radius: 20px; max-width: 450px; margin: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
-        h1 { background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; margin-bottom: 5px; }
+        h1 { background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        h1 img { width: 35px; border-radius: 4px; }
         .tagline { color: #8b949e; font-size: 14px; margin-bottom: 30px; }
         input { width: 100%; padding: 16px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #30363d; background: #1c2128; color: white; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
         input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
@@ -26,12 +27,13 @@ HTML = """
         .contact-box { margin-top: 30px; padding-top: 20px; border-top: 1px solid #2d333b; text-align: center; }
         .tg-link { display: block; color: var(--primary); text-decoration: none; font-weight: bold; font-size: 15px; margin: 10px 0; padding: 8px; border: 1px dashed #30363d; border-radius: 8px; transition: 0.3s; }
         .tg-link:hover { background: rgba(0, 242, 254, 0.1); border-color: var(--primary); }
+        .counter { margin-top: 20px; font-size: 12px; color: #8b949e; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ZODIAC 🇦🇿</h1>
+        <h1>ZODIAC <img src="https://flagcdn.com/w80/az.png" alt="🇦🇿"></h1>
         <p class="tagline">TikTok Videolarını Logosuz Endir</p>
         
         <form method="POST">
@@ -47,6 +49,11 @@ HTML = """
             <p style="color: #8b949e; font-size: 13px; margin-bottom: 10px;">Reklam və Əməkdaşlıq üçün:</p>
             <a href="https://t.me/zodiac06" class="tg-link">✈️ @zodiac06</a>
             <a href="https://t.me/BakuUnderground" class="tg-link">📢 @BakuUnderground</a>
+            
+            <div class="counter">
+                Ziyarətçi sayı:<br>
+                <img src="https://hitwebcounter.com/counter/counter.php?page=zodiac_unique&style=0006&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter" border="0" style="margin-top: 5px;">
+            </div>
         </div>
     </div>
 </body>
