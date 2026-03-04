@@ -10,7 +10,7 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC V13 🇦🇿</title>
+    <title>ZODIAC V14 🇦🇿</title>
     <style>
         :root { --tt: #00f2fe; --ig: #ff0050; --bg: #000; }
         body { 
@@ -22,9 +22,16 @@ HTML = """
         
         h1 { font-size: 45px; margin-bottom: 5px; text-shadow: 0 0 15px var(--tt); letter-spacing: 8px; }
         
-        .music-bar { margin-bottom: 20px; }
-        .m-btn { background: none; border: 1px solid #444; color: #888; padding: 5px 10px; cursor: pointer; border-radius: 5px; font-size: 10px; margin: 2px; }
-        .m-btn:hover { border-color: white; color: white; }
+        .music-bar { 
+            margin-bottom: 20px; background: rgba(255,255,255,0.05); 
+            padding: 10px; border-radius: 10px; border: 1px solid #333;
+        }
+        .m-btn { 
+            background: none; border: 1px solid #555; color: #ccc; 
+            padding: 8px 12px; cursor: pointer; border-radius: 5px; 
+            font-size: 11px; margin: 3px; font-weight: bold;
+        }
+        .m-btn:hover { background: white; color: black; }
 
         .box { 
             background: rgba(0,0,0,0.8); padding: 25px; border-radius: 15px; margin-top: 20px; 
@@ -33,14 +40,10 @@ HTML = """
         .tt-box { border-top: 4px solid var(--tt); box-shadow: 0 5px 15px rgba(0, 242, 254, 0.1); }
         .ig-box { border-top: 4px solid var(--ig); box-shadow: 0 5px 15px rgba(255, 0, 80, 0.1); }
         
-        .box:hover { transform: translateY(-5px); }
-        .box h2 { font-size: 14px; letter-spacing: 2px; margin-bottom: 15px; }
-
         input { 
             width: 100%; padding: 12px; background: #080808; border: 1px solid #333; 
             color: white; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; outline: none;
         }
-        input:focus { border-color: inherit; }
 
         button { 
             width: 100%; padding: 12px; border: none; color: black; font-weight: 900; 
@@ -49,14 +52,9 @@ HTML = """
         .tt-btn { background: var(--tt); box-shadow: 0 0 10px var(--tt); }
         .ig-btn { background: var(--ig); box-shadow: 0 0 10px var(--ig); }
 
-        .dl-btn { 
-            display: block; margin-top: 15px; background: #fff; color: #000; 
-            padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; 
-        }
-
+        .dl-btn { display: block; margin-top: 15px; background: #fff; color: #000; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; }
         .footer { margin-top: 30px; font-size: 11px; }
-        .footer a { color: #555; text-decoration: none; margin: 0 10px; font-weight: bold; }
-        .footer a:hover { color: white; }
+        .footer a { color: #555; text-decoration: none; margin: 0 10px; }
     </style>
 </head>
 <body>
@@ -65,13 +63,14 @@ HTML = """
         <h1>ZODIAC</h1>
         
         <div class="music-bar">
-            <button class="m-btn" onclick="playM('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3')">LOFI</button>
-            <button class="m-btn" onclick="playM('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3')">PHONK</button>
-            <button class="m-btn" onclick="stopM()">OFF</button>
+            <p style="font-size: 10px; color: #888; margin-bottom: 8px;">🎵 VİBE-I SEÇ, BRAT:</p>
+            <button class="m-btn" onclick="playM('https://dl.musicaz.net/files/music/2021/08/mahir-ay-brat-320.mp3')">MAHİR AY BRAT</button>
+            <button class="m-btn" onclick="playM('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3')">AVARA VİBE</button>
+            <button class="m-btn" onclick="stopM()">🔇</button>
         </div>
 
         <div class="box tt-box">
-            <h2 style="color: var(--tt);">TIKTOK MODULE</h2>
+            <h2 style="color: var(--tt); font-size: 14px;">TIKTOK MODULE</h2>
             <form method="POST">
                 <input type="hidden" name="t" value="tt">
                 <input type="text" name="u" placeholder="TikTok Linki..." required>
@@ -81,7 +80,7 @@ HTML = """
         </div>
 
         <div class="box ig-box">
-            <h2 style="color: var(--ig);">INSTAGRAM MODULE</h2>
+            <h2 style="color: var(--ig); font-size: 14px;">INSTAGRAM MODULE</h2>
             <form method="POST">
                 <input type="hidden" name="t" value="ig">
                 <input type="text" name="u" placeholder="Instagram Linki..." required>
@@ -89,8 +88,6 @@ HTML = """
             </form>
             {% if ig %}<a href="{{ ig }}" class="dl-btn" target="_blank">📥 VİDEONU YÜKLƏ</a>{% endif %}
         </div>
-
-        {% if e %}<p style="color:red; font-size:12px; margin-top:10px;">{{ e }}</p>{% endif %}
 
         <div class="footer">
             <a href="https://t.me/zodiac06">@ADMIN</a>
@@ -138,7 +135,7 @@ def index():
             elif t == "ig":
                 r = requests.get(f"https://api.vppandora.com/get_video?url={u}").json()
                 ig = r['video_url']
-        except: e = "Xəta: Link tapılmadı."
+        except: e = "Xəta baş verdi."
     return render_template_string(HTML, tt=tt, ig=ig, e=e)
 
 if __name__ == "__main__":
