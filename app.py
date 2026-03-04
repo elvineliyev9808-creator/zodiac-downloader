@@ -4,120 +4,68 @@ import os
 
 app = Flask(__name__)
 
+# Bu hissə saytın dizaynı və musiqi sistemidir
 HTML = """
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zodiac Elite 🇦🇿</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>ZODIAC ELITE</title>
     <style>
-        :root { --primary: #ffffff; --accent: #00f2fe; --bg: #0a0a0c; }
-        body { 
-            background: var(--bg); color: white; font-family: 'Inter', sans-serif; 
-            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh;
-            background: radial-gradient(circle at top right, #1a1a2e, #0a0a0c);
-        }
-
-        .container { 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px 30px; 
-            border-radius: 32px; max-width: 400px; width: 90%; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-
-        .flag { width: 60px; margin-bottom: 20px; border-radius: 4px; filter: grayscale(20%); }
-        h1 { font-size: 28px; font-weight: 700; letter-spacing: -1px; margin: 0 0 10px; }
-        .subtitle { font-size: 13px; color: #888; margin-bottom: 30px; }
-
-        .music-bar { margin-bottom: 30px; display: flex; justify-content: center; gap: 8px; }
-        .m-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #ccc; padding: 6px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; transition: 0.3s;
-        }
-        .m-btn:hover { background: white; color: black; }
-
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { font-size: 11px; color: #555; text-transform: uppercase; margin-left: 10px; font-weight: 700; }
-        input { 
-            width: 100%; padding: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: white; border-radius: 16px; margin-top: 8px; box-sizing: border-box; outline: none; transition: 0.3s;
-        }
-        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
-
-        button { 
-            width: 100%; padding: 16px; border: none; color: black; font-weight: 700;
-            border-radius: 16px; cursor: pointer; background: white; transition: 0.3s;
-        }
-        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
-
-        .dl-btn { 
-            display: block; margin-top: 15px; background: #00f2fe; color: black; 
-            padding: 16px; border-radius: 16px; text-decoration: none; font-weight: 700; font-size: 14px;
-        }
-
-        .footer { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
-        .footer a { color: #555; text-decoration: none; font-size: 12px; margin: 0 15px; transition: 0.3s; }
-        .footer a:hover { color: white; }
+        body { background: #050505; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .card { background: #111; padding: 30px; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #000; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #00f2fe; }
+        .m-btn { background: none; border: 1px solid #444; color: #888; padding: 5px 10px; margin: 5px; cursor: pointer; border-radius: 5px; font-size: 10px; }
+        .dl-link { display: block; margin-top: 15px; background: #00f2fe; color: black; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        .footer { margin-top: 20px; font-size: 11px; color: #555; }
+        a { color: #888; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="https://flagcdn.com/w160/az.png" class="flag">
-        <h1>ZODIAC</h1>
-        <p class="subtitle">Minimalist Video Downloader</p>
-
-        <div class="music-bar">
-            <button class="m-btn" onclick="playM('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3')">LOFI</button>
-            <button class="m-btn" onclick="playM('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3')">PHONK</button>
-            <button class="m-btn" onclick="stopM()">🔇</button>
+    <div class="card">
+        <h1 style="letter-spacing: 3px; color: #00f2fe;">ZODIAC</h1>
+        <div class="music-box">
+            <button class="m-btn" onclick="play('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3')">LOFI</button>
+            <button class="m-btn" onclick="play('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3')">PHONK</button>
+            <button class="m-btn" onclick="document.getElementById('bg').pause()">🔇</button>
         </div>
-
-        <form method="POST" class="input-group">
-            <label>TikTok / Instagram Link</label>
-            <input type="text" name="u" placeholder="Linki bura yerləşdirin..." required>
-            <button type="submit" style="margin-top: 15px;">ANALİZ ET</button>
+        <form method="POST">
+            <input type="text" name="u" placeholder="TikTok və ya Instagram linki..." required>
+            <button type="submit">VİDEONU TAP</button>
         </form>
-
-        {% if tt or ig %}
-            <a href="{{ tt if tt else ig }}" class="dl-btn">VİDEONU YÜKLƏ</a>
-        {% endif %}
-
-        {% if e %}<p style="color: #ff4b4b; font-size: 12px;">{{ e }}</p>{% endif %}
-
+        {% if d %}<a href="{{ d }}" class="dl-link" target="_blank">📥 VİDEONU YÜKLƏ</a>{% endif %}
+        {% if e %}<p style="color:red; font-size: 12px;">{{ e }}</p>{% endif %}
+        <audio id="bg" loop></audio>
         <div class="footer">
-            <a href="https://t.me/zodiac06">ADMIN</a>
-            <a href="https://t.me/BakuUnderground">CHANNEL</a>
+            <a href="https://t.me/zodiac06">ADMIN</a> | <a href="https://t.me/BakuUnderground">CHANNEL</a>
         </div>
     </div>
-
-    <audio id="bgA" loop></audio>
-
-    <script>
-        const a = document.getElementById('bgA');
-        function playM(s) { a.src = s; a.play(); }
-        function stopM() { a.pause(); }
-    </script>
+    <script>function play(s){var a=document.getElementById('bg');a.src=s;a.play();}</script>
 </body>
 </html>
 """
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    tt, ig, e = None, None, None
+    d, e = None, None
     if request.method == 'POST':
-        u = request.form.get('u')
+        u = request.form.get('u', '')
         try:
             if "tiktok.com" in u:
-                res = requests.get(f"https://www.tikwm.com/api/?url={u}").json()
-                tt = res['data']['play']
+                r = requests.get(f"https://www.tikwm.com/api/?url={u}").json()
+                d = r['data'].get('play')
             elif "instagram.com" in u:
-                res = requests.get(f"https://api.vppandora.com/get_video?url={u}").json()
-                ig = res['video_url']
-            else: e = "Düzgün link daxil edin."
-        except: e = "Video tapılmadı."
-    return render_template_string(HTML, tt=tt, ig=ig, e=e)
+                r = requests.get(f"https://api.vppandora.com/get_video?url={u}").json()
+                d = r.get('video_url')
+            if not d: e = "Video tapılmadı və ya profil gizlidir."
+        except Exception:
+            e = "Xəta baş verdi. Linki yoxlayın."
+    return render_template_string(HTML, d=d, e=e)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+    # Render üçün port tənzimləməsi
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
