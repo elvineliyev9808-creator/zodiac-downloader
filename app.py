@@ -4,31 +4,69 @@ import os
 
 app = Flask(__name__)
 
+# Sənin Telegram adların və bütün effektlər daxil olan tam kod
 HTML = """
 <!DOCTYPE html>
-<html>
+<html lang="az">
 <head>
-    <title>Zodiac 🇦🇿</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zodiac Downloader 🇦🇿</title>
     <style>
-        body { background: #0b0e11; color: white; text-align: center; font-family: sans-serif; padding: 20px; }
-        .box { background: #151921; padding: 20px; border-radius: 15px; max-width: 400px; margin: auto; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; }
-        button { background: #2ea043; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        .flag { font-size: 40px; }
+        :root { --primary: #00f2fe; --secondary: #4facfe; --bg: #0b0e11; --card: #151921; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px 15px; margin: 0; }
+        .container { background: var(--card); border: 1px solid #2d333b; padding: 35px; border-radius: 20px; max-width: 450px; margin: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
+        
+        /* Dalğalanan Bayraq Effekti */
+        .flag-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px; }
+        h1 { background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 35px; margin: 0; font-weight: 900; }
+        .waving-flag { width: 45px; height: 28px; background: url('https://flagcdn.com/w160/az.png') no-repeat center; background-size: cover; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); animation: wave 2s ease-in-out infinite; }
+        @keyframes wave { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(4deg); } }
+
+        .tagline { color: #8b949e; font-size: 14px; margin-bottom: 30px; }
+        input { width: 100%; padding: 18px; margin-bottom: 20px; border-radius: 15px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; font-size: 16px; transition: 0.4s; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
+        
+        button { width: 100%; padding: 18px; background: linear-gradient(45deg, #238636, #2ea043); border: none; color: white; font-weight: bold; border-radius: 15px; cursor: pointer; font-size: 17px; transition: 0.3s; box-shadow: 0 5px 20px rgba(35, 134, 54, 0.3); }
+        button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(35, 134, 54, 0.5); }
+
+        .dl-link { display: block; margin-top: 25px; background: linear-gradient(45deg, var(--secondary), var(--primary)); color: white; text-decoration: none; padding: 18px; border-radius: 15px; font-weight: bold; animation: pulse 2s infinite; font-size: 18px; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+        .contact-box { margin-top: 35px; padding-top: 25px; border-top: 1px solid #2d333b; }
+        .tg-link { display: block; color: var(--primary); text-decoration: none; font-weight: bold; font-size: 15px; margin: 12px 0; padding: 12px; border: 1px solid #30363d; border-radius: 12px; transition: 0.3s; }
+        .tg-link:hover { background: rgba(0, 242, 254, 0.1); border-color: var(--primary); }
+
+        .counter { margin-top: 20px; font-size: 12px; color: #8b949e; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; display: inline-block; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <div class="flag">🇦🇿</div>
-        <h1>ZODIAC DOWNLOADER</h1>
+    <div class="container">
+        <div class="flag-wrapper">
+            <h1>ZODIAC</h1>
+            <div class="waving-flag"></div>
+        </div>
+        <p class="tagline">TikTok Videolarını Logosuz Endir 🇦🇿</p>
+        
         <form method="POST">
-            <input type="text" name="url" placeholder="TikTok linkini bura qoy..." required>
-            <button type="submit">ENDİR</button>
+            <input type="text" name="url" placeholder="TikTok video linkini bura qoyun..." required>
+            <button type="submit">VİDEONU ANALİZ ET</button>
         </form>
+
         {% if video_url %}
-            <br><a href="{{ video_url }}" style="color: #4facfe; font-weight: bold;">📥 VİDEONU YÜKLƏ</a>
+            <a href="{{ video_url }}" class="dl-link" target="_blank" download>📥 LOGOSUZ YÜKLƏ</a>
         {% endif %}
+
+        <div class="contact-box">
+            <p style="color: #8b949e; font-size: 13px; margin-bottom: 12px;">Reklam və Əməkdaşlıq üçün:</p>
+            <a href="https://t.me/zodiac06" class="tg-link">✈️ @zodiac06</a>
+            <a href="https://t.me/BakuUnderground" class="tg-link">📢 @BakuUnderground</a>
+            
+            <div class="counter">
+                Ziyarətçi sayı:<br>
+                <img src="https://hitwebcounter.com/counter/counter.php?page=zodiac_final&style=0006&nbdigits=5&type=page&initCount=0" title="Free Counter" border="0" style="margin-top: 8px;">
+            </div>
+        </div>
     </div>
 </body>
 </html>
@@ -42,7 +80,8 @@ def index():
         try:
             res = requests.get(f"https://www.tikwm.com/api/?url={link}").json()
             video_url = res['data']['play']
-        except: pass
+        except:
+            pass
     return render_template_string(HTML, video_url=video_url)
 
 if __name__ == "__main__":
