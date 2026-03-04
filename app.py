@@ -4,13 +4,14 @@ import os
 
 app = Flask(__name__)
 
+# Dizayn və Musiqi Sistemi (Matrix + Avara Vibe)
 HTML = """
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC V14 🇦🇿</title>
+    <title>ZODIAC ELITE 🇦🇿</title>
     <style>
         :root { --tt: #00f2fe; --ig: #ff0050; --bg: #000; }
         body { background: var(--bg); color: white; font-family: 'Courier New', monospace; margin: 0; overflow-x: hidden; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
@@ -94,6 +95,6 @@ def index():
     return render_template_string(HTML, tt=tt, ig=ig)
 
 if __name__ == "__main__":
-    # Render üçün vacib olan hissə:
+    # Render-in məcburi tələbi olan port tənzimləməsi
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
