@@ -10,78 +10,120 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zodiac Downloader 🇦🇿</title>
+    <title>Zodiac Premium 🇦🇿</title>
     <style>
-        :root { --primary: #00f2fe; --secondary: #4facfe; --bg: #0b0e11; --card: #151921; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px 15px; margin: 0; }
-        .container { background: var(--card); border: 1px solid #2d333b; padding: 25px; border-radius: 20px; max-width: 450px; margin: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
+        :root { --primary: #00f2fe; --secondary: #4facfe; --bg: #05070a; --card: rgba(21, 25, 33, 0.8); }
         
-        /* Bayraq və Başlıq */
-        .header-box { margin-bottom: 25px; }
+        /* Hərəkətli Ulduzlu Fon */
+        body { 
+            background: var(--bg); color: white; font-family: 'Poppins', sans-serif; 
+            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            background-image: radial-gradient(circle at center, #111 0%, #05070a 100%);
+            overflow-x: hidden;
+        }
+
+        .container { 
+            background: var(--card); backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 242, 254, 0.2); padding: 40px 25px; 
+            border-radius: 30px; max-width: 450px; width: 90%;
+            box-shadow: 0 0 50px rgba(0, 242, 254, 0.1); text-align: center;
+        }
+
+        /* HD Bayraq və Neon Başlıq */
         .az-flag { 
-            width: 80px; height: 45px; margin: 0 auto 15px;
+            width: 90px; height: 50px; margin: 0 auto 15px;
             background: url('https://flagcdn.com/w320/az.png') no-repeat center; 
             background-size: cover; border-radius: 8px; 
-            box-shadow: 0 0 20px rgba(0,242,254,0.4);
-            animation: wave 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(0,242,254,0.6));
+            animation: float 3s ease-in-out infinite;
         }
-        @keyframes wave { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(2deg); } }
-        
-        h1 { background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 38px; margin: 0; font-weight: 900; }
-        
-        .box { background: #0d1117; padding: 20px; border-radius: 15px; border: 1px solid #30363d; margin-bottom: 20px; transition: 0.3s; }
-        .box:hover { border-color: var(--primary); }
-        .section-title { color: var(--primary); font-size: 14px; margin-bottom: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #30363d; background: #151921; color: white; box-sizing: border-box; outline: none; }
-        
-        .btn-tt { background: linear-gradient(45deg, #ff0050, #00f2fe); }
-        .btn-ig { background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045); }
-        button { width: 100%; padding: 16px; border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 15px; }
-        button:hover { transform: scale(1.02); filter: brightness(1.1); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        .dl-link { display: block; margin-top: 15px; background: #238636; color: white; text-decoration: none; padding: 16px; border-radius: 10px; font-weight: bold; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        h1 { 
+            font-size: 42px; margin: 0; font-weight: 900; letter-spacing: 5px;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5));
+        }
 
-        .contact-box { margin-top: 25px; border-top: 1px solid #2d333b; padding-top: 20px; }
-        .tg-link { display: block; color: var(--primary); text-decoration: none; font-weight: bold; font-size: 14px; margin: 8px 0; padding: 12px; border: 1px solid #30363d; border-radius: 12px; }
-        .tg-link:hover { background: rgba(0, 242, 254, 0.1); }
+        .box { 
+            background: rgba(13, 17, 23, 0.6); padding: 25px; border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); margin-top: 25px;
+            transition: 0.4s;
+        }
+        .box:hover { border-color: var(--primary); transform: translateY(-5px); }
+
+        .label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 15px; display: block; font-weight: bold; }
+
+        input { 
+            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #30363d; 
+            background: #0d1117; color: white; box-sizing: border-box; 
+            margin-bottom: 15px; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); outline: none; }
+
+        button { 
+            width: 100%; padding: 16px; border: none; color: white; font-weight: bold; 
+            border-radius: 12px; cursor: pointer; font-size: 16px; text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-tt { background: linear-gradient(45deg, #ff0050, #00f2fe); box-shadow: 0 4px 15px rgba(255, 0, 80, 0.3); }
+        .btn-ig { background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045); box-shadow: 0 4px 15px rgba(253, 29, 29, 0.3); }
+        button:hover { transform: scale(1.03); filter: brightness(1.2); }
+
+        .dl-link { 
+            display: block; margin-top: 20px; background: #238636; color: white; 
+            text-decoration: none; padding: 18px; border-radius: 12px; font-weight: bold;
+            box-shadow: 0 5px 20px rgba(35, 134, 54, 0.4); animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        .footer { margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .tg-btn { 
+            display: inline-block; width: 45%; margin: 5px; padding: 10px; 
+            border: 1px solid #30363d; border-radius: 10px; color: var(--primary);
+            text-decoration: none; font-size: 12px; font-weight: bold; transition: 0.3s;
+        }
+        .tg-btn:hover { background: rgba(0, 242, 254, 0.1); border-color: var(--primary); }
+
+        .counter { font-size: 10px; color: #8b949e; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header-box">
-            <div class="az-flag"></div>
-            <h1>ZODIAC</h1>
+        <div class="az-flag"></div>
+        <h1>ZODIAC</h1>
+        <p style="font-size: 12px; color: #8b949e;">Premium Video Downloader</p>
+
+        <div class="box">
+            <span class="label">🎵 TikTok Video</span>
+            <form method="POST">
+                <input type="hidden" name="t" value="tt">
+                <input type="text" name="u" placeholder="Linki bura yapışdır..." required>
+                <button type="submit" class="btn-tt">Analiz Et</button>
+            </form>
+            {% if tt %}<a href="{{ tt }}" class="dl-link" target="_blank">📥 VİDEONU YÜKLƏ</a>{% endif %}
         </div>
 
         <div class="box">
-            <div class="section-title">🎵 TikTok Yükləyici</div>
+            <span class="label">📸 Instagram Reels</span>
             <form method="POST">
-                <input type="hidden" name="type" value="tiktok">
-                <input type="text" name="url" placeholder="TikTok video linkini yapışdır..." required>
-                <button type="submit" class="btn-tt">TIKTOK ANALİZ ET</button>
+                <input type="hidden" name="t" value="ig">
+                <input type="text" name="u" placeholder="Linki bura yapışdır..." required>
+                <button type="submit" class="btn-ig">Analiz Et</button>
             </form>
-            {% if tt_url %} <a href="{{ tt_url }}" class="dl-link" target="_blank">📥 VİDEONU YÜKLƏ</a> {% endif %}
+            {% if ig %}<a href="{{ ig }}" class="dl-link" target="_blank">📥 VİDEONU YÜKLƏ</a>{% endif %}
         </div>
 
-        <div class="box">
-            <div class="section-title">📸 Instagram Yükləyici</div>
-            <form method="POST">
-                <input type="hidden" name="type" value="insta">
-                <input type="text" name="url" placeholder="Instagram Reels linkini yapışdır..." required>
-                <button type="submit" class="btn-ig">INSTAGRAM ANALİZ ET</button>
-            </form>
-            {% if ig_url %} <a href="{{ ig_url }}" class="dl-link" target="_blank">📥 VİDEONU YÜKLƏ</a> {% endif %}
-        </div>
+        {% if e %}<p style="color:#ff4b4b; font-size: 14px; margin-top: 15px;">{{ e }}</p>{% endif %}
 
-        {% if error %} <p style="color:#ff4b4b; font-weight: bold; margin-bottom: 15px;">{{ error }}</p> {% endif %}
-
-        <div class="contact-box">
-            <a href="https://t.me/zodiac06" class="tg-link">✈️ @zodiac06</a>
-            <a href="https://t.me/BakuUnderground" class="tg-link">📢 @BakuUnderground</a>
-            <p style="font-size: 11px; color: #8b949e; margin-top: 15px;">Ziyarətçi sayı:<br>
-            <img src="https://hitwebcounter.com/counter/counter.php?page=zodiac_v6&style=0006&nbdigits=5" border="0"></p>
+        <div class="footer">
+            <a href="https://t.me/zodiac06" class="tg-btn">✈️ ADMİN</a>
+            <a href="https://t.me/BakuUnderground" class="tg-btn">📢 KANAL</a>
+            <div class="counter">
+                Ziyarətçi: <br>
+                <img src="https://hitwebcounter.com/counter/counter.php?page=zodiac_v8&style=0006&nbdigits=5">
+            </div>
         </div>
     </div>
 </body>
@@ -90,28 +132,20 @@ HTML = """
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    tt_url, ig_url, error = None, None, None
+    tt, ig, e = None, None, None
     if request.method == 'POST':
-        mode = request.form.get('type')
-        link = request.form.get('url')
+        t, u = request.form.get('t'), request.form.get('u')
         try:
-            if mode == "tiktok":
-                res = requests.get(f"https://www.tikwm.com/api/?url={link}").json()
-                tt_url = res['data']['play']
-            elif mode == "insta":
-                # Instagram üçün yeni və daha güclü ehtiyat API
-                api_url = f"https://api.vppandora.com/get_video?url={link}"
-                res = requests.get(api_url).json()
-                if 'video_url' in res:
-                    ig_url = res['video_url']
-                else:
-                    # İkinci ehtiyat API
-                    res2 = requests.get(f"https://api.snapany.com/api/v1/download?url={link}").json()
-                    ig_url = res2['data']['media'][0]['url']
+            if t == "tt":
+                res = requests.get(f"https://www.tikwm.com/api/?url={u}").json()
+                tt = res['data']['play']
+            elif t == "ig":
+                # Instagram üçün ən güclü API
+                res = requests.get(f"https://api.vppandora.com/get_video?url={u}").json()
+                ig = res['video_url']
         except:
-            error = "Video tapılmadı! Linkin düzgün və profilin açıq olduğundan əmin olun."
-            
-    return render_template_string(HTML, tt_url=tt_url, ig_url=ig_url, error=error)
+            e = "Video tapılmadı! Linkin doğruluğunu yoxlayın."
+    return render_template_string(HTML, tt=tt, ig=ig, e=e)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
