@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# Dizayn və Musiqi Sistemi (Matrix + Avara Vibe)
+# ZODIAC V15 - Matrix & Avara Edition
 HTML = """
 <!DOCTYPE html>
 <html lang="az">
@@ -18,19 +18,20 @@ HTML = """
         #matrix { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.2; }
         .container { width: 90%; max-width: 450px; text-align: center; z-index: 1; padding: 20px; }
         h1 { font-size: 45px; margin-bottom: 5px; text-shadow: 0 0 15px var(--tt); letter-spacing: 8px; }
-        .music-bar { margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; border: 1px solid #333; }
-        .m-btn { background: none; border: 1px solid #555; color: #ccc; padding: 8px 12px; cursor: pointer; border-radius: 5px; font-size: 11px; margin: 3px; font-weight: bold; }
-        .m-btn:hover { background: white; color: black; }
-        .box { background: rgba(0,0,0,0.8); padding: 25px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; }
+        .music-bar { margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid #333; }
+        .m-btn { background: var(--tt); border: none; color: black; padding: 10px 15px; cursor: pointer; border-radius: 8px; font-size: 12px; font-weight: 900; box-shadow: 0 0 10px var(--tt); transition: 0.3s; }
+        .m-btn:hover { transform: scale(1.1); }
+        .box { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; }
         .tt-box { border-top: 4px solid var(--tt); box-shadow: 0 5px 15px rgba(0, 242, 254, 0.1); }
         .ig-box { border-top: 4px solid var(--ig); box-shadow: 0 5px 15px rgba(255, 0, 80, 0.1); }
         input { width: 100%; padding: 12px; background: #080808; border: 1px solid #333; color: white; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 12px; border: none; color: black; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+        button.exec { width: 100%; padding: 12px; border: none; color: black; font-weight: 900; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
         .tt-btn { background: var(--tt); }
         .ig-btn { background: var(--ig); }
-        .dl-btn { display: block; margin-top: 15px; background: #fff; color: #000; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        .dl-btn { display: block; margin-top: 15px; background: #fff; color: #000; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         .footer { margin-top: 30px; font-size: 11px; }
-        .footer a { color: #555; text-decoration: none; margin: 0 10px; }
+        .footer a { color: #555; text-decoration: none; margin: 0 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -38,23 +39,23 @@ HTML = """
     <div class="container">
         <h1>ZODIAC</h1>
         <div class="music-bar">
-            <p style="font-size: 10px; color: #888; margin-bottom: 8px;">🎵 VİBE-I SEÇ, BRAT:</p>
-            <button class="m-btn" onclick="playM('https://dl.musicaz.net/files/music/2021/08/mahir-ay-brat-320.mp3')">MAHİR AY BRAT</button>
-            <button class="m-btn" onclick="stopM()">🔇 STOP</button>
+            <p style="font-size: 11px; color: #888; margin-bottom: 10px;">🎧 MAHiR AY BRAT - AKTIV ET:</p>
+            <button class="m-btn" onclick="playM()">🎵 MUSIQINI QOŞ</button>
+            <button style="background:none; border:1px solid #444; color:#666; padding:5px; margin-left:10px; border-radius:5px; cursor:pointer;" onclick="stopM()">OFF</button>
         </div>
         <div class="box tt-box">
-            <h2 style="color: var(--tt); font-size: 14px;">TIKTOK MODULE</h2>
-            <form method="POST"><input type="hidden" name="t" value="tt"><input type="text" name="u" placeholder="TikTok Linki..." required><button type="submit" class="tt-btn">ANALİZ ET</button></form>
-            {% if tt %}<a href="{{ tt }}" class="dl-btn" target="_blank">📥 VİDEONU YÜKLƏ</a>{% endif %}
+            <h2 style="color: var(--tt); font-size: 14px; margin-top:0;">TIKTOK DOWNLOADER</h2>
+            <form method="POST"><input type="hidden" name="t" value="tt"><input type="text" name="u" placeholder="Linki yapışdır..." required><button type="submit" class="exec tt-btn">ANALIZ ET</button></form>
+            {% if tt %}<a href="{{ tt }}" class="dl-btn" target="_blank">📥 VIDEONU YÜKLƏ</a>{% endif %}
         </div>
         <div class="box ig-box">
-            <h2 style="color: var(--ig); font-size: 14px;">INSTAGRAM MODULE</h2>
-            <form method="POST"><input type="hidden" name="t" value="ig"><input type="text" name="u" placeholder="Instagram Linki..." required><button type="submit" class="ig-btn">ANALİZ ET</button></form>
-            {% if ig %}<a href="{{ ig }}" class="dl-btn" target="_blank">📥 VİDEONU YÜKLƏ</a>{% endif %}
+            <h2 style="color: var(--ig); font-size: 14px; margin-top:0;">INSTAGRAM DOWNLOADER</h2>
+            <form method="POST"><input type="hidden" name="t" value="ig"><input type="text" name="u" placeholder="Linki yapışdır..." required><button type="submit" class="exec ig-btn">ANALIZ ET</button></form>
+            {% if ig %}<a href="{{ ig }}" class="dl-btn" target="_blank">📥 VIDEONU YÜKLƏ</a>{% endif %}
         </div>
         <div class="footer"><a href="https://t.me/zodiac06">@ADMIN</a> | <a href="https://t.me/BakuUnderground">@KANAL</a></div>
     </div>
-    <audio id="bgA" loop></audio>
+    <audio id="bgA" loop src="https://dl.musicaz.net/files/music/2021/08/mahir-ay-brat-320.mp3"></audio>
     <script>
         const canvas = document.getElementById('matrix'); const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -72,7 +73,7 @@ HTML = """
         }
         setInterval(draw, 35);
         const a = document.getElementById('bgA');
-        function playM(s) { a.src = s; a.play(); }
+        function playM() { a.play().catch(() => alert("Ekrana bir dəfə toxun, sonra düyməyə bas!")); }
         function stopM() { a.pause(); }
     </script>
 </body>
@@ -95,6 +96,5 @@ def index():
     return render_template_string(HTML, tt=tt, ig=ig)
 
 if __name__ == "__main__":
-    # Render-in məcburi tələbi olan port tənzimləməsi
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
