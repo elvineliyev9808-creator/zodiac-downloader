@@ -48,6 +48,3 @@ def index():
         except: pass
     return render_template_string(HTML, video_url=video_url)
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
