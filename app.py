@@ -6,18 +6,17 @@ import time
 
 app = Flask(__name__)
 
-# --- ANTI-SLEEP SİSTEMİ (Saytın sönməməsi üçün) ---
-def keep_alive():
+# Saytın sönməməsi üçün daxili pinger
+def stay_awake():
     while True:
         try:
-            # Buraya öz saytının linkini yazacaqsan
+            # Buraya mütləq öz saytının Render linkini tam yaz!
             requests.get("https://zodiac-downloader.onrender.com")
         except:
             pass
-        time.sleep(600) # 10 dəqiqədən bir "oyan" mesajı göndərir
+        time.sleep(300) # 5 dəqiqədən bir dümsükləyir ki, yatmasın
 
-# Arxa fonda işə salırıq
-threading.Thread(target=keep_alive, daemon=True).start()
+threading.Thread(target=stay_awake, daemon=True).start()
 
 HTML = """
 <!DOCTYPE html>
@@ -25,97 +24,196 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC PREMIUM V18</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <title>ZODIAC | ELITE SYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Syncopate:wght@700&family=Inter:wght@300;500&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #00f2fe; --s: #4facfe; --bg: #0a0a0a; }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        :root { --main: #00f2fe; --glow: rgba(0, 242, 254, 0.5); --dark: #050505; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        /* Premium Background */
-        .gradient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #111 0%, #000 100%); }
-        .circle { position: absolute; background: var(--p); filter: blur(100px); border-radius: 50%; opacity: 0.15; animation: move 15s infinite alternate; }
+        body { 
+            background: var(--dark); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+        }
 
-        .card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 35px; width: 90%; max-width: 420px; padding: 45px 35px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); transition: 0.5s; }
+        /* Cyber Background Effect */
+        #stars-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .nebula { position: fixed; width: 500px; height: 500px; background: radial-gradient(circle, var(--glow) 0%, transparent 70%); filter: blur(100px); opacity: 0.15; z-index: -1; animation: float 10s infinite alternate; }
+
+        .container { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 40px; 
+            width: 90%; 
+            max-width: 420px; 
+            padding: 50px 30px; 
+            text-align: center; 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05);
+            animation: fadeIn 1s ease-out;
+        }
+
+        h1 { 
+            font-family: 'Syncopate', sans-serif; 
+            font-size: 28px; 
+            margin: 0; 
+            background: linear-gradient(90deg, #fff, var(--main), #fff); 
+            background-size: 200% auto;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: shine 3s linear infinite;
+            letter-spacing: 10px;
+        }
+
+        .status { font-size: 8px; color: var(--main); letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase; opacity: 0.7; }
+
+        /* Premium Music Player */
+        .player-ui { 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 30px; 
+            padding: 25px; 
+            margin-bottom: 30px; 
+            border: 1px solid rgba(0, 242, 254, 0.2); 
+            position: relative;
+            overflow: hidden;
+        }
+        .track-label { font-size: 10px; color: #888; margin-bottom: 10px; display: block; letter-spacing: 1px; }
+        #t-title { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        h1 { font-family: 'Orbitron', sans-serif; font-size: 35px; margin: 0; background: linear-gradient(45deg, var(--p), var(--s)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 5px; }
-        .tag { font-size: 9px; letter-spacing: 3px; color: #555; margin-bottom: 30px; text-transform: uppercase; }
+        .play-ring { 
+            width: 70px; height: 70px; 
+            border-radius: 50%; 
+            background: var(--main); 
+            margin: 0 auto; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.5s;
+            box-shadow: 0 0 30px var(--glow);
+        }
+        .play-ring i { font-size: 24px; color: #000; }
+        .play-ring.active { background: #ff0050; box-shadow: 0 0 30px rgba(255,0,80,0.5); transform: rotate(180deg); }
 
-        /* Modern Player */
-        .player { background: rgba(0,0,0,0.3); border-radius: 25px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px; }
-        #track-name { font-size: 11px; color: var(--p); font-weight: 600; margin-bottom: 15px; text-transform: uppercase; }
-        .play-btn { background: white; border: none; width: 65px; height: 65px; border-radius: 50%; font-size: 22px; cursor: pointer; transition: 0.4s ease; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,242,254,0.2); }
-        .play-btn:active { transform: scale(0.9); }
-        .is-playing { background: #ff0050; color: white; box-shadow: 0 10px 25px rgba(255, 0, 80, 0.3); }
+        /* Modern Input Group */
+        .input-wrap { position: relative; margin-top: 20px; }
+        input { 
+            width: 100%; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 18px 25px; 
+            border-radius: 20px; 
+            color: #fff; 
+            font-size: 14px; 
+            outline: none; 
+            transition: 0.4s;
+        }
+        input:focus { border-color: var(--main); background: rgba(0, 242, 254, 0.05); box-shadow: 0 0 15px rgba(0, 242, 254, 0.1); }
+        
+        .dl-btn { 
+            width: 100%; 
+            margin-top: 15px; 
+            background: #fff; 
+            color: #000; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 20px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        .dl-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
 
-        /* Input Styles */
-        input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 16px 22px; border-radius: 18px; color: white; outline: none; transition: 0.3s; margin-bottom: 15px; }
-        input:focus { border-color: var(--p); background: rgba(255,255,255,0.08); }
-        .btn { width: 100%; background: linear-gradient(45deg, var(--p), var(--s)); border: none; padding: 16px; border-radius: 18px; color: black; font-weight: 800; cursor: pointer; transition: 0.3s; }
-
-        @keyframes move { from { transform: translate(-20%, -20%); } to { transform: translate(20%, 20%); } }
+        @keyframes shine { to { background-position: 200% center; } }
+        @keyframes float { from { transform: translate(-10%, -10%); } to { transform: translate(10%, 10%); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="gradient-bg"><div class="circle" style="width:300px; height:300px; top:10%; left:10%;"></div></div>
-    
-    <div class="card">
-        <h1>ZODIAC</h1>
-        <div class="tag">Always Active System</div>
+    <div class="nebula"></div>
+    <canvas id="stars-canvas"></canvas>
 
-        <div class="player">
-            <div id="track-name">Musiqi Hazırlanır...</div>
-            <button class="play-btn" onclick="toggle()" id="ctrl-btn">▶</button>
+    <div class="container">
+        <h1>ZODIAC</h1>
+        <div class="status">System Online // 24/7</div>
+
+        <div class="player-ui">
+            <span class="track-label">NOW PLAYING</span>
+            <div id="t-title">Musiqi Seçilir...</div>
+            <div class="play-ring" onclick="handlePlay()" id="p-btn">▶</div>
         </div>
 
         <form method="POST">
-            <input type="text" name="u" placeholder="TikTok və ya IG Linki..." required>
-            <button type="submit" class="btn">ANALİZ ET</button>
+            <div class="input-wrap">
+                <input type="text" name="u" placeholder="Linki yapışdır..." required>
+            </div>
+            <button type="submit" class="dl-btn">ANALİZ ET</button>
         </form>
 
         {% if dl %}
-        <div style="margin-top:20px; border: 1px dashed var(--p); padding: 15px; border-radius: 15px;">
-            <a href="{{ dl }}" style="color:var(--p); text-decoration:none; font-weight:bold; font-size:13px;" target="_blank">📥 VİDEONU YÜKLƏ</a>
+        <div style="margin-top: 25px; animation: fadeIn 0.5s;">
+            <a href="{{ dl }}" style="color: var(--main); text-decoration: none; font-size: 12px; font-weight: bold; border-bottom: 1px solid;" target="_blank">📥 VİDEONU CİHAZA YÜKLƏ</a>
         </div>
         {% endif %}
     </div>
 
-    <audio id="audio" onended="nextTrack()"></audio>
+    <audio id="m-player" onended="autoNext()"></audio>
 
     <script>
-        const playlist = [
+        const songs = [
             {n: "Lotular - Mahir Ay Brat", s: "Lotular(MP3_160K).mp3"},
             {n: "Ara Usaqlari - Mahir Ay Brat", s: "Ara Usaqlari(MP3_160K).mp3"},
-            {n: "AIS - Пыяла", s: "AIS - Пыяла x Sarışan hallar(M.mp3"}
+            {n: "AIS - Пыяла x Sarışan Hallar", s: "AIS - Пыяла x Sarışan hallar(M.mp3"}
         ];
 
-        let index = 0;
-        const player = document.getElementById('audio');
-        const btn = document.getElementById('ctrl-btn');
-        const info = document.getElementById('track-name');
+        let curIdx = 0;
+        const player = document.getElementById('m-player');
+        const btn = document.getElementById('p-btn');
+        const title = document.getElementById('t-title');
 
-        function loadTrack(i) {
-            // EncodeURIComponent boşluq və mötərizə xətasını həll edir
-            player.src = "/music/" + encodeURIComponent(playlist[i].s);
-            info.innerText = playlist[i].n;
+        function load(i) {
+            player.src = "/music/" + encodeURIComponent(songs[i].s);
+            title.innerText = songs[i].n;
         }
 
-        loadTrack(index);
+        load(curIdx);
 
-        function toggle() {
+        function handlePlay() {
             if(player.paused) {
                 player.play().then(() => {
-                    btn.innerHTML = "||"; btn.classList.add('is-playing');
-                }).catch(() => alert("Ekrana toxun, sonra Play bas!"));
+                    btn.innerHTML = "||"; btn.classList.add('active');
+                }).catch(() => alert("Ekrana bir dəfə toxun!"));
             } else {
-                player.pause(); btn.innerHTML = "▶"; btn.classList.remove('is-playing');
+                player.pause(); btn.innerHTML = "▶"; btn.classList.remove('active');
             }
         }
 
-        function nextTrack() {
-            index = (index + 1) % playlist.length;
-            loadTrack(index);
-            player.play();
+        function autoNext() {
+            curIdx = (curIdx + 1) % songs.length;
+            load(curIdx); player.play();
         }
+
+        // Stars Background
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        let stars = [];
+        for(let i=0; i<100; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, size: Math.random()*1.5, spd: Math.random()*0.5});
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#fff";
+            stars.forEach(s => {
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
+                s.y -= s.spd; if(s.y < 0) s.y = canvas.height;
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
     </script>
 </body>
 </html>
@@ -131,6 +229,7 @@ def index():
     if request.method == 'POST':
         u = request.form.get('u')
         try:
+            # TikTok/IG API Sorğusu
             r = requests.get(f"https://www.tikwm.com/api/?url={u}").json()
             dl = r['data']['play']
         except: pass
