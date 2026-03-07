@@ -1,12 +1,8 @@
 from flask import Flask, render_template_string, request, send_from_directory
-import requests
-import os
-import threading
-import time
+import requests, os, threading, time
 
 app = Flask(__name__)
 
-# --- SERVERİN SÖNMƏMƏSİ ÜÇÜN (KEEP-ALIVE) ---
 def keep_alive():
     while True:
         try: requests.get("http://127.0.0.1:10000")
@@ -21,140 +17,101 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC | Professional Video Downloader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>ZODIAC | Compact</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #0062ff; --bg: #f8fafc; --text: #1e293b; --white: #ffffff; }
-        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        :root { --main: #0062ff; --bg: #f3f4f6; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; margin: 0; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; width: 100%; max-width: 360px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background: var(--main); color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 20px; letter-spacing: -0.5px; }
+        .content { padding: 20px; }
         
-        /* Nav */
-        nav { background: var(--white); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-weight: 700; font-size: 22px; color: var(--blue); letter-spacing: -1px; }
+        /* Compact Input */
+        .search-form { display: flex; gap: 8px; margin-bottom: 15px; }
+        input { flex: 1; padding: 12px; border: 1px solid #e5e7eb; border-radius: 10px; outline: none; font-size: 14px; }
+        .btn { background: var(--main); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: 600; cursor: pointer; }
 
-        /* Main Section */
-        .hero { padding: 60px 20px; text-align: center; background: linear-gradient(135deg, #0062ff 0%, #00d4ff 100%); color: white; }
-        h1 { margin: 0 0 10px; font-size: 32px; font-weight: 700; }
-        p { opacity: 0.9; font-size: 15px; }
+        /* Tiny Player */
+        .player { background: #f9fafb; border: 1px solid #eee; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; }
+        .p-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--main); color: white; cursor: pointer; font-size: 12px; }
+        #t-title { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .search-area { max-width: 600px; margin: -40px auto 0; padding: 20px; }
-        .input-group { background: var(--white); padding: 10px; border-radius: 15px; display: flex; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        input { flex: 1; border: none; padding: 15px; outline: none; font-size: 16px; border-radius: 10px; }
-        .btn-dl { background: var(--blue); color: white; border: none; padding: 0 30px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .btn-dl:hover { background: #004ecc; }
-
-        /* Player Box */
-        .m-player { max-width: 400px; margin: 40px auto; background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid #e2e8f0; }
-        .p-btn { width: 45px; height: 45px; border-radius: 50%; border: none; background: #f1f5f9; cursor: pointer; color: var(--blue); font-size: 18px; }
-
-        /* AI CHAT BOT SYSTEM */
-        #chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-        #chat-btn { width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,98,255,0.4); border: none; }
-        #chat-window { display: none; width: 300px; height: 400px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: absolute; bottom: 80px; right: 0; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
-        .chat-header { background: var(--blue); color: white; padding: 15px; font-weight: 600; font-size: 14px; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 13px; background: #f9f9f9; }
-        .msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; max-width: 80%; }
-        .bot { background: #e2e8f0; align-self: flex-start; }
-        .user { background: var(--blue); color: white; align-self: flex-end; margin-left: auto; }
-        .chat-footer { padding: 10px; display: flex; border-top: 1px solid #eee; }
-        .chat-footer input { padding: 8px; border: 1px solid #ddd; border-radius: 5px; flex: 1; font-size: 12px; }
-
-        @media (max-width: 600px) { h1 { font-size: 24px; } .btn-dl { padding: 0 15px; } }
+        /* Support Bot Window */
+        #c-win { display: none; position: fixed; bottom: 85px; right: 20px; width: 280px; height: 350px; background: white; border-radius: 15px; box-shadow: 0 5px 30px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #eee; z-index: 999; }
+        .c-head { background: #1f2937; color: white; padding: 12px; font-size: 13px; font-weight: 600; }
+        .c-body { flex: 1; padding: 10px; overflow-y: auto; font-size: 12px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; }
+        .b { background: #f3f4f6; align-self: flex-start; }
+        .u { background: var(--main); color: white; align-self: flex-end; }
+        .c-foot { padding: 8px; border-top: 1px solid #eee; display: flex; }
+        .c-foot input { padding: 6px; border-radius: 5px; font-size: 11px; }
+        #c-btn { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: var(--main); border-radius: 50%; border: none; color: white; font-size: 22px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,98,255,0.3); }
     </style>
 </head>
 <body>
 
-    <nav><div class="logo">ZODIAC.</div></nav>
+    <div class="card">
+        <div class="header"><h1>ZODIAC.</h1></div>
+        <div class="content">
+            <form method="POST" class="search-form">
+                <input type="text" name="u" placeholder="Linki yapışdır..." required>
+                <button type="submit" class="btn">GO</button>
+            </form>
 
-    <div class="hero">
-        <h1>Video Downloader</h1>
-        <p>TikTok və Instagram videolarını bir kliklə endirin</p>
-    </div>
-
-    <div class="search-area">
-        <form method="POST" class="input-group">
-            <input type="text" name="u" placeholder="Video linkini bura yapışdırın..." required>
-            <button type="submit" class="btn-dl">ENDİR</button>
-        </form>
-
-        {% if dl %}
-        <div style="margin-top: 20px; text-align: center; background: white; padding: 20px; border-radius: 15px; border: 1px solid #22c55e;">
-            <p style="font-weight: 600; color: #166534; margin: 0 0 10px;">Hazırdır! ✅</p>
-            <a href="{{ dl }}" style="background: #22c55e; color: white; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; display: inline-block;" target="_blank">📥 VİDEONU YÜKLƏ</a>
-        </div>
-        {% endif %}
-    </div>
-
-    <div class="m-player">
-        <button class="p-btn" onclick="toggleM()" id="mBtn">▶</button>
-        <div>
-            <div id="t-title" style="font-size: 12px; font-weight: 600;">Lotular - Mahir Ay</div>
-            <div style="font-size: 10px; color: #64748b;">Playlist Mode</div>
-        </div>
-    </div>
-
-    <div id="chat-widget">
-        <div id="chat-window">
-            <div class="chat-header">Zodiac Dəstək Botu</div>
-            <div class="chat-body" id="chatBody">
-                <div class="msg bot">Salam! Mən Zodiac. Sizə necə kömək edə bilərəm?</div>
+            {% if dl %}
+            <div style="text-align: center; margin-bottom: 15px;">
+                <a href="{{ dl }}" style="display: block; background: #10b981; color: white; text-decoration: none; padding: 10px; border-radius: 10px; font-weight: 600; font-size: 13px;" target="_blank">📥 VİDEONU YÜKLƏ</a>
             </div>
-            <div class="chat-footer">
-                <input type="text" id="chatInp" placeholder="Mesaj yaz..." onkeypress="if(event.key=='Enter') sendMsg()">
+            {% endif %}
+
+            <div class="player">
+                <button class="p-btn" onclick="tgl()" id="pb">▶</button>
+                <div id="t-title">Musiqi: Lotular</div>
             </div>
         </div>
-        <button id="chat-btn" onclick="toggleChat()">💬</button>
     </div>
 
-    <audio id="audio" onended="nextS()"></audio>
+    <div id="c-win">
+        <div class="c-head">Zodiac Assistant</div>
+        <div class="c-body" id="cb"><div class="msg b">Salam! Mənə sual verə bilərsiniz.</div></div>
+        <div class="c-foot"><input type="text" id="ci" placeholder="Yazın..." onkeypress="if(event.key=='Enter') send()"></div>
+    </div>
+    <button id="c-btn" onclick="tglC()">💬</button>
+
+    <audio id="aud" onended="nxt()"></audio>
 
     <script>
-        // Musiqi Sistemi
-        const songs = [
-            {n: "Lotular - Mahir Ay", s: "Lotular(MP3_160K).mp3"},
-            {n: "Ara Usaqlari - Mahir Ay", s: "Ara Usaqlari(MP3_160K).mp3"},
-            {n: "AIS - Пыяла", s: "AIS - Пыяла x Sarışan hallar(M.mp3"}
-        ];
-        let cur = 0;
-        const aud = document.getElementById('audio');
-        const tit = document.getElementById('t-title');
-        function load(i) { aud.src = "/music/" + encodeURIComponent(songs[i].s); tit.innerText = songs[i].n; }
-        load(cur);
-        function toggleM() { aud.paused ? aud.play().then(()=>document.getElementById('mBtn').innerText="||") : aud.pause(); }
-        function nextS() { cur = (cur+1)%songs.length; load(cur); aud.play(); }
+        const s = [{n:"Lotular - Mahir Ay", s:"Lotular(MP3_160K).mp3"}, {n:"Ara Usaqlari", s:"Ara Usaqlari(MP3_160K).mp3"}, {n:"AIS - Пыяла", s:"AIS - Пыяла x Sarışan hallar(M.mp3"}];
+        let c = 0; const a = document.getElementById('aud');
+        function ld(i) { a.src = "/music/" + encodeURIComponent(s[i].s); document.getElementById('t-title').innerText = s[i].n; }
+        ld(c);
+        function tgl() { a.paused ? a.play().then(()=>document.getElementById('pb').innerText="||") : a.pause(); }
+        function nxt() { c = (c+1)%s.length; ld(c); a.play(); }
 
-        // AI Chat Sistemi
-        function toggleChat() { 
-            const win = document.getElementById('chat-window');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        }
-        function sendMsg() {
-            const inp = document.getElementById('chatInp');
-            const body = document.getElementById('chatBody');
-            if(!inp.value) return;
-            
-            body.innerHTML += `<div class="msg user">${inp.value}</div>`;
-            let val = inp.value.toLowerCase();
-            inp.value = "";
-            
+        function tglC() { const w = document.getElementById('c-win'); w.style.display = (w.style.display==='flex')?'none':'flex'; }
+        function send() {
+            const i = document.getElementById('ci'); const b = document.getElementById('cb');
+            if(!i.value) return;
+            b.innerHTML += `<div class="msg u">${i.value}</div>`;
+            const v = i.value.toLowerCase(); i.value = "";
             setTimeout(() => {
-                let reply = "Başa düşmədim, lütfən linki bura yapışdırın.";
-                if(val.includes("salam")) reply = "Salam! Xoş gəldiniz. Sizə necə kömək edim?";
-                else if(val.includes("sağ ol") || val.includes("sagol")) reply = "Buyurun! Həmişə xidmətinizdəyik.";
-                else if(val.includes("işləmir")) reply = "Linki tam kopyalayıb yapışdırdığınızdan əmin olun.";
-                
-                body.innerHTML += `<div class="msg bot">${reply}</div>`;
-                body.scrollTop = body.scrollHeight;
-            }, 600);
+                let r = "Başa düşmədim. TikTok və ya IG linkini yuxarıya yapışdırın.";
+                if(v.includes("salam")) r = "Salam! Necə kömək edə bilərəm?";
+                else if(v.includes("necəsən") || v.includes("necesen")) r = "Mən botam, amma əlayam! Siz necəsiniz?";
+                else if(v.includes("işləmir") || v.includes("problem")) r = "Linkin düzgün olduğuna və videonun gizli olmadığına əmin olun.";
+                else if(v.includes("musiqi")) r = "Pleyer aşağıdadır, 'Play' düyməsinə basaraq dinləyə bilərsiniz.";
+                else if(v.includes("kim") && v.includes("yaratdı")) r = "Bu sistem Zodiac tərəfindən sizin üçün hazırlanıb.";
+                b.innerHTML += `<div class="msg b">${r}</div>`; b.scrollTop = b.scrollHeight;
+            }, 500);
         }
     </script>
 </body>
 </html>
 """
 
-@app.route('/music/<path:filename>')
-def get_music(filename):
-    return send_from_directory(os.getcwd(), filename)
+@app.route('/music/<path:f>')
+def g_m(f): return send_from_directory(os.getcwd(), f)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
