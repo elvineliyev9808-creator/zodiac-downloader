@@ -22,10 +22,10 @@ HTML = """
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { background: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
-        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.12; filter: blur(4px); pointer-events: none; }
+        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.15; filter: blur(5px); pointer-events: none; }
         .video-bg iframe { width: 100vw; height: 100vh; border: none; }
         
-        .container { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 215, 0, 0.2); width: 92%; max-width: 380px; padding: 40px 25px; border-radius: 40px; text-align: center; box-shadow: 0 40px 100px #000; position: relative; z-index: 10; }
+        .container { background: rgba(15, 15, 15, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255, 215, 0, 0.3); width: 92%; max-width: 380px; padding: 40px 25px; border-radius: 40px; text-align: center; box-shadow: 0 40px 100px #000; position: relative; z-index: 10; }
         h1 { font-family: 'Orbitron', sans-serif; font-size: 32px; background: linear-gradient(90deg, #fff, #ffd700, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; letter-spacing: 5px; }
         .sub { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 35px; }
 
@@ -36,25 +36,25 @@ HTML = """
         .dl { margin-bottom: 25px; padding: 15px; background: rgba(255,215,0,0.1); border-radius: 20px; }
         .dl a { color: #ffd700; text-decoration: none; font-weight: 800; font-size: 14px; }
 
-        /* Professional Playlist Player */
-        .player { background: rgba(255,255,255,0.03); border: 1px solid #222; padding: 15px; border-radius: 25px; display: flex; align-items: center; gap: 15px; }
-        .p-btn { width: 45px; height: 45px; background: #ffd700; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; color: #000; display: flex; align-items: center; justify-content: center; }
+        /* Professional Player UI */
+        .player { background: #111; border: 1px solid #222; padding: 15px; border-radius: 25px; display: flex; align-items: center; gap: 15px; }
+        .p-btn { width: 45px; height: 45px; background: #ffd700; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; color: #000; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,215,0,0.3); }
         .n-btn { background: none; border: 1px solid #333; color: #fff; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 12px; }
         .m-info { text-align: left; flex: 1; }
         .m-name { font-size: 12px; font-weight: 700; color: #ffd700; display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 140px; }
         .m-art { font-size: 9px; color: #666; }
 
-        /* Chat Bot */
-        #c-win { display: none; position: fixed; bottom: 100px; right: 25px; width: 300px; height: 400px; background: #050505; border: 1px solid #ffd700; border-radius: 25px; flex-direction: column; overflow: hidden; z-index: 1000; }
+        /* Bot */
+        #c-win { display: none; position: fixed; bottom: 100px; right: 25px; width: 300px; height: 400px; background: #0a0a0a; border: 1px solid #ffd700; border-radius: 25px; flex-direction: column; overflow: hidden; z-index: 1000; }
         .c-h { background: #ffd700; color: #000; padding: 15px; font-weight: 800; font-size: 13px; }
         .c-b { flex: 1; padding: 15px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px; border-radius: 15px; max-width: 85%; line-height: 1.4; }
+        .msg { padding: 10px; border-radius: 15px; max-width: 85%; }
         .bot { background: #1a1a1a; align-self: flex-start; }
         .user { background: #ffd700; color: #000; align-self: flex-end; font-weight: 700; }
         .c-f { padding: 10px; border-top: 1px solid #222; }
         .c-f input { margin: 0; padding: 10px; background: #000; border-radius: 12px; }
 
-        #c-trig { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #ffd700; border-radius: 20px; border: none; font-size: 26px; cursor: pointer; z-index: 1001; box-shadow: 0 10px 20px rgba(255,215,0,0.2); }
+        #c-trig { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #ffd700; border-radius: 20px; border: none; font-size: 26px; cursor: pointer; z-index: 1001; }
     </style>
 </head>
 <body>
@@ -64,7 +64,7 @@ HTML = """
 
     <div class="container">
         <h1>ZODIAC</h1>
-        <div class="sub">Premium Download System</div>
+        <div class="sub">Premium System v3.0</div>
 
         <form method="POST" class="search">
             <input type="text" name="u" placeholder="Link bura yapışdır..." required>
@@ -87,7 +87,7 @@ HTML = """
 
     <div id="c-win">
         <div class="c-h">ZODIAC DƏSTƏK</div>
-        <div class="c-b" id="cb"><div class="msg bot">Salam brat! Mahnıları sənin GitHub-dan oxuyuram. Kəf elə!</div></div>
+        <div class="c-b" id="cb"><div class="msg bot">Salam brat! Mahnıları sənin GitHub-dan bir-bir çəkirəm. Keçid üçün ⏭ düyməsini istifadə elə.</div></div>
         <div class="c-f"><input type="text" id="ci" placeholder="Yaz..." onkeypress="if(event.key=='Enter') snd()"></div>
     </div>
     <button id="c-trig" onclick="tglC()">💬</button>
@@ -96,7 +96,7 @@ HTML = """
 
     <script>
         const a = document.getElementById('audio');
-        // GitHub-dakı fayl adların
+        // Sənin GitHub-dakı fayl adların (Boşluq və simvollar dəqiq!)
         const playlist = [
             "Lotular(MP3_160K).mp3",
             "AIS - Пыяла x Sari.mp3",
@@ -107,15 +107,18 @@ HTML = """
         let cur = 0;
 
         function load(i) {
-            // Birbaşa sənin GitHub-ındakı fayla müraciət edir
-            a.src = "/music/" + playlist[i];
-            document.getElementById('m-name').innerText = playlist[i].replace('.mp3', '');
+            // URL kodlaşdırması əlavə edildi ki, xüsusi simvollar (ə, ö, boşluq) işləsin
+            a.src = "/music/" + encodeURIComponent(playlist[i]);
+            document.getElementById('m-name').innerText = playlist[i].split('(')[0].replace('.mp3', '');
         }
 
         load(cur);
 
         function tglM() {
-            if(a.paused) { a.play().then(()=>document.getElementById('ctrl').innerText="||").catch(()=>alert("Ekrana toxun!")); }
+            if(a.paused) { 
+                a.play().then(()=>document.getElementById('ctrl').innerText="||")
+                .catch(()=>alert("Zəhmət olmasa ekranda bir yerə toxun, sonra PLAY-ə bas. Brauzer icazə vermir.")); 
+            }
             else { a.pause(); document.getElementById('ctrl').innerText="▶"; }
         }
 
@@ -128,9 +131,8 @@ HTML = """
             b.innerHTML += `<div class="msg user">${i.value}</div>`;
             const v = i.value.toLowerCase(); i.value = ""; b.scrollTop = b.scrollHeight;
             setTimeout(() => {
-                let r = "Mahnını dəyişmək üçün pleyerdə ⏭ düyməsinə bas.";
-                if(v.includes("salam")) r = "Salam əə Sənə necə kömək edə bilərəm?";
-                else if(v.includes("necesen")) r = "Sistem stabil işləyir, bomba kimiyəm!";
+                let r = "Mahnını dəyişmək üçün ⏭ düyməsini istifadə elə.";
+                if(v.includes("salam")) r = "Salam brat! Xoş gəldin.";
                 b.innerHTML += `<div class="msg bot">${r}</div>`; b.scrollTop = b.scrollHeight;
             }, 500);
         }
