@@ -3,14 +3,14 @@ import requests, os, threading, time
 
 app = Flask(__name__)
 
-# Render-də 24/7 aktiv qalmaq üçün
-def stay_online():
+# Serverin sönməməsi üçün
+def keep_alive():
     while True:
         try: requests.get("http://127.0.0.1:10000")
         except: pass
         time.sleep(300)
 
-threading.Thread(target=stay_online, daemon=True).start()
+threading.Thread(target=keep_alive, daemon=True).start()
 
 HTML = """
 <!DOCTYPE html>
@@ -18,106 +18,87 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC | Video Downloader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>ZODIAC</title>
     <style>
-        body { background: #f4f7f6; font-family: 'Inter', sans-serif; margin: 0; padding: 0; color: #1a1a1a; }
-        header { background: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .logo { font-weight: 900; font-size: 26px; color: #000; letter-spacing: -1px; }
-        .logo span { color: #0062ff; }
+        * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: #fdfdfd; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        .main-hero { background: linear-gradient(135deg, #0062ff 0%, #00d4ff 100%); padding: 60px 20px; text-align: center; color: white; }
-        .main-hero h1 { margin: 0; font-size: 32px; font-weight: 900; }
-        .main-hero p { opacity: 0.9; font-size: 14px; margin-top: 10px; }
+        .card { background: #fff; width: 90%; max-width: 350px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
+        h1 { font-size: 24px; color: #007aff; margin: 0 0 5px; font-weight: 900; }
+        p { font-size: 11px; color: #888; margin-bottom: 20px; }
 
-        .search-container { max-width: 650px; margin: -35px auto 40px; padding: 0 15px; }
-        .input-group { background: white; padding: 10px; border-radius: 50px; display: flex; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid #eee; }
-        input { flex: 1; border: none; padding: 15px 25px; outline: none; font-size: 16px; border-radius: 50px; }
-        .btn-download { background: #000; color: white; border: none; padding: 0 30px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn-download:hover { transform: scale(1.03); background: #222; }
+        input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; outline: none; background: #f9f9f9; font-size: 14px; margin-bottom: 10px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: #000; color: #fff; font-weight: 700; cursor: pointer; }
+        
+        .dl-res { margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 12px; }
+        .dl-link { color: #2e7d32; text-decoration: none; font-weight: 800; font-size: 13px; }
 
-        .result-box { max-width: 450px; margin: 30px auto; background: white; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .dl-btn { display: block; background: #00c853; color: white; text-decoration: none; padding: 15px; border-radius: 15px; font-weight: 800; font-size: 15px; }
+        /* Yığcam Azeri Player */
+        .player { margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #f0f0f0; padding: 8px; border-radius: 50px; }
+        .p-btn { border: none; background: #007aff; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 10px; cursor: pointer; }
+        .p-txt { font-size: 10px; font-weight: 600; color: #555; }
 
-        /* Azerbaijan Trend Player */
-        .player-bar { position: fixed; bottom: 25px; left: 25px; background: white; padding: 12px 20px; border-radius: 50px; display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 100; border: 1px solid #f0f0f0; }
-        .play-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #0062ff; color: white; cursor: pointer; font-size: 14px; }
-        .track-name { font-size: 12px; font-weight: 700; color: #444; }
+        /* Bot */
+        #chat { display: none; position: fixed; bottom: 80px; right: 20px; width: 280px; height: 350px; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); flex-direction: column; overflow: hidden; border: 1px solid #eee; }
+        .c-h { background: #000; color: #fff; padding: 10px; font-size: 12px; font-weight: 700; }
+        .c-b { flex: 1; padding: 10px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 5px; }
+        .m { padding: 8px; border-radius: 10px; max-width: 80%; }
+        .b { background: #f0f0f0; align-self: flex-start; }
+        .u { background: #007aff; color: #fff; align-self: flex-end; }
+        .c-f { padding: 5px; border-top: 1px solid #eee; }
+        .c-f input { margin: 0; padding: 8px; font-size: 11px; }
 
-        /* Smart AI Support */
-        #chat-window { display: none; position: fixed; bottom: 100px; right: 25px; width: 320px; height: 450px; background: white; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #eee; z-index: 1000; }
-        .chat-header { background: #000; color: white; padding: 20px; font-weight: 800; font-size: 14px; }
-        .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-size: 13px; background: #fdfdfd; }
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; line-height: 1.5; }
-        .bot-msg { background: #f0f2f5; color: #333; align-self: flex-start; }
-        .user-msg { background: #0062ff; color: white; align-self: flex-end; }
-        .chat-footer { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 8px; }
-        .chat-footer input { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 13px; outline: none; }
-
-        #chat-btn { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background: #000; border-radius: 50%; color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1001; }
+        #btn-c { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #000; color: #fff; border-radius: 50%; border: none; cursor: pointer; font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <header><div class="logo">ZODIAC</div></header>
-
-    <div class="main-hero">
-        <h1>TikTok Video Downloader</h1>
-        <p>Filtrsiz və loqosuz saniyələr içində yüklə</p>
-    </div>
-
-    <div class="search-container">
-        <form method="POST" class="input-group">
-            <input type="text" name="u" placeholder="TikTok linkini bura yapışdır..." required>
-            <button type="submit" class="btn-download">ENDİR</button>
+    <div class="card">
+        <h1>ZODIAC</h1>
+        <p>TikTok Video Downloader</p>
+        
+        <form method="POST">
+            <input type="text" name="u" placeholder="Linki yapıştır..." required>
+            <button type="submit" class="btn">ENDİR</button>
         </form>
 
         {% if dl %}
-        <div class="result-box">
-            <div style="font-weight: 800; color: #00c853; margin-bottom: 15px;">Video Tapıldı! ✅</div>
-            <a href="{{ dl }}" class="dl-btn" target="_blank">📥 VİDEONU YÜKLƏ (.MP4)</a>
+        <div class="dl-res">
+            <a href="{{ dl }}" class="dl-link" target="_blank">📥 VİDEONU SAXLA</a>
         </div>
         {% endif %}
+
+        <div class="player">
+            <button class="p-btn" onclick="tglM()" id="ctrl">▶</button>
+            <span class="p-txt">Azeri Trend Mix 🇦🇿</span>
+        </div>
     </div>
 
-    <div class="player-bar">
-        <button class="play-btn" onclick="toggleM()" id="m-ctrl">▶</button>
-        <div class="track-name">Trend Azerbaijan Mood</div>
+    <div id="chat">
+        <div class="c-h">DƏSTƏK</div>
+        <div class="c-b" id="cb"><div class="m b">Salam, mən Zodiac! Sualın var?</div></div>
+        <div class="c-f"><input type="text" id="ci" placeholder="Mesaj..." onkeypress="if(event.key=='Enter') snd()"></div>
     </div>
+    <button id="btn-c" onclick="tglC()">💬</button>
 
-    <div id="chat-window">
-        <div class="chat-header">ZODIAC DƏSTƏK AI</div>
-        <div class="chat-body" id="chat-b"><div class="msg bot-msg">Salam! Mən Zodiac AI. Azərbaycan dilində bütün suallarınızı cavablandırmağa hazıram.</div></div>
-        <div class="chat-footer"><input type="text" id="chat-i" placeholder="Sualınızı yazın..." onkeypress="if(event.key=='Enter') sendM()"></div>
-    </div>
-    <button id="chat-btn" onclick="toggleC()">💬</button>
-
-    <audio id="audio" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"></audio>
+    <audio id="audio" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"></audio>
 
     <script>
-        const audio = document.getElementById('audio');
-        function toggleM() {
-            if(audio.paused) { audio.play(); document.getElementById('m-ctrl').innerText = "||"; }
-            else { audio.pause(); document.getElementById('m-ctrl').innerText = "▶"; }
-        }
-        function toggleC() {
-            const win = document.getElementById('chat-window');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        }
-        function sendM() {
-            const inp = document.getElementById('chat-i');
-            const box = document.getElementById('chat-b');
-            if(!inp.value) return;
-            box.innerHTML += `<div class="msg user-msg">${inp.value}</div>`;
-            const v = inp.value.toLowerCase(); inp.value = ""; box.scrollTop = box.scrollHeight;
+        const a = document.getElementById('audio');
+        function tglM() { if(a.paused) { a.play(); document.getElementById('ctrl').innerText="||"; } else { a.pause(); document.getElementById('ctrl').innerText="▶"; } }
+        function tglC() { const w = document.getElementById('chat'); w.style.display = (w.style.display==='flex')?'none':'flex'; }
+        function snd() {
+            const i = document.getElementById('ci'); const b = document.getElementById('cb');
+            if(!i.value) return;
+            b.innerHTML += `<div class="m u">${i.value}</div>`;
+            const v = i.value.toLowerCase(); i.value = ""; b.scrollTop = b.scrollHeight;
             setTimeout(() => {
-                let r = "Bunu hələ ki anlamıram, amma TikTok linkini endirmək üçün kömək edə bilərəm.";
-                if(v.includes("salam")) r = "Salam! Necə kömək edə bilərəm?";
-                else if(v.includes("necesen")) r = "Mən Zodiac AI-am, hər şey qaydasındadır! Siz necəsiniz?";
-                else if(v.includes("islemir")) r = "Linkin tam kopyalandığından və videonun silinmədiyindən əmin olun.";
-                else if(v.includes("sagol") || v.includes("təşəkkür")) r = "Xoşdur! Hər zaman buradayam.";
-                box.innerHTML += `<div class="msg bot-msg">${r}</div>`; box.scrollTop = box.scrollHeight;
-            }, 600);
+                let r = "Linki yuxarı qoyub endirə bilərsən.";
+                if(v.includes("salam")) r = "Salam! Necə kömək edim?";
+                else if(v.includes("necesen")) r = "Şükür, yaxşıyam! Sən necəsən?";
+                else if(v.includes("islemir")) r = "Linkin düzgünlüyünü yoxla.";
+                b.innerHTML += `<div class="m b">${r}</div>`; b.scrollTop = b.scrollHeight;
+            }, 500);
         }
     </script>
 </body>
