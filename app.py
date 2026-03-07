@@ -3,14 +3,14 @@ import requests, os, threading, time
 
 app = Flask(__name__)
 
-# Sönməmə sistemi
-def stay_awake():
+# Serverin sönməməsi üçün daxili pinger
+def keep_alive():
     while True:
         try: requests.get("http://127.0.0.1:10000")
         except: pass
         time.sleep(300)
 
-threading.Thread(target=stay_awake, daemon=True).start()
+threading.Thread(target=keep_alive, daemon=True).start()
 
 HTML = """
 <!DOCTYPE html>
@@ -18,154 +18,170 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>ZODIAC PREMIUM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #2563eb; --bg: #f8fafc; --card: #ffffff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); font-family: 'Outfit', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        :root { --gold: #ffd700; --dark: #050505; --glass: rgba(255, 255, 255, 0.05); }
+        body { background: var(--dark); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         
-        .main-card { background: var(--card); width: 92%; max-width: 380px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); padding: 24px; text-align: center; border: 1px solid #f1f5f9; }
-        h1 { font-size: 22px; font-weight: 800; color: var(--blue); margin: 0 0 20px; letter-spacing: -0.5px; }
+        /* Canlı Arxa Fon (Animated Particles) */
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-        /* Yığcam Input Group */
-        .input-group { position: relative; display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 16px; margin-bottom: 20px; }
-        input { flex: 1; background: transparent; border: none; padding: 10px 15px; outline: none; font-size: 14px; font-weight: 500; }
-        .dl-btn { background: var(--blue); color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .dl-btn:active { transform: scale(0.95); }
+        .card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 380px; padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 26px; color: var(--gold); margin-bottom: 25px; text-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
 
-        /* Yeni Nəsil Musiqi Player */
-        .player-mini { background: #1e293b; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; color: white; }
-        .track-info { text-align: left; overflow: hidden; }
-        #t-name { font-size: 11px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; display: block; margin-bottom: 2px; }
-        .controls { display: flex; gap: 10px; align-items: center; }
-        .p-btn, .n-btn { background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; border-radius: 50%; width: 32px; height: 32px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-        .p-btn { background: var(--blue); }
+        /* Downloader Section */
+        .search-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 15px; color: white; outline: none; font-size: 14px; }
+        input:focus { border-color: var(--gold); }
+        .btn { background: var(--gold); color: black; border: none; padding: 0 20px; border-radius: 15px; font-weight: 700; cursor: pointer; }
 
-        /* Smart AI Chat */
-        #chat-ui { display: none; position: fixed; bottom: 90px; right: 20px; width: 300px; height: 400px; background: white; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #e2e8f0; z-index: 1000; }
-        .c-head { background: var(--blue); color: white; padding: 15px; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; }
-        .c-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
-        .m { padding: 8px 14px; border-radius: 14px; max-width: 85%; line-height: 1.4; }
-        .bot { background: white; color: #334155; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .user { background: var(--blue); color: white; align-self: flex-end; }
-        .c-foot { padding: 10px; border-top: 1px solid #e2e8f0; display: flex; gap: 5px; }
-        .c-foot input { flex: 1; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 13px; }
+        /* Compact Player */
+        .player-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,215,0,0.2); }
+        #t-title { font-size: 11px; font-weight: 600; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        .ctrls { display: flex; gap: 8px; }
+        .p-btn, .n-btn { background: var(--gold); border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .n-btn { background: white; color: black; }
 
-        #bot-trigger { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: var(--blue); border-radius: 50%; color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 8px 25px rgba(37,99,235,0.3); }
+        /* AI Support Bot */
+        #c-win { display: none; position: fixed; bottom: 90px; right: 20px; width: 300px; height: 420px; background: #111; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); flex-direction: column; overflow: hidden; border: 1px solid var(--gold); z-index: 1000; }
+        .c-head { background: var(--gold); color: black; padding: 15px; font-weight: 800; font-size: 14px; text-align: left; }
+        .c-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 10px; background: #0a0a0a; }
+        .m { padding: 10px; border-radius: 12px; max-width: 85%; line-height: 1.5; }
+        .bot { background: #222; color: #ddd; align-self: flex-start; border-left: 3px solid var(--gold); }
+        .user { background: var(--gold); color: black; align-self: flex-end; font-weight: 600; }
+        .c-foot { padding: 10px; background: #111; border-top: 1px solid #222; display: flex; }
+        .c-foot input { flex: 1; background: #000; border: 1px solid #333; padding: 10px; border-radius: 10px; font-size: 12px; color: white; }
+
+        #bot-trigger { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; border: none; color: black; font-size: 28px; cursor: pointer; box-shadow: 0 0 20px rgba(255,215,0,0.4); z-index: 1001; }
     </style>
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
 
-    <div class="main-card">
-        <h1>ZODIAC.</h1>
+    <div class="card">
+        <h1>ZODIAC ELITE</h1>
         
-        <form method="POST" class="input-group">
-            <input type="text" name="u" placeholder="Linki bura qoy..." required>
-            <button type="submit" class="dl-btn">ENDİR</button>
+        <form method="POST" class="search-form">
+            <input type="text" name="u" placeholder="Video linkini bura qoy..." required>
+            <button type="submit" class="btn">ENDİR</button>
         </form>
 
         {% if dl %}
-        <div style="animation: slideUp 0.3s forwards; margin-bottom: 20px;">
-            <a href="{{ dl }}" style="background: #10b981; color: white; text-decoration: none; padding: 12px; border-radius: 14px; display: block; font-weight: 600; font-size: 14px;" target="_blank">📥 VİDEONU SAXLA</a>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ dl }}" style="display: block; background: white; color: black; text-decoration: none; padding: 12px; border-radius: 15px; font-weight: 800; font-size: 14px;" target="_blank">📥 VİDEONU YÜKLƏ</a>
         </div>
         {% endif %}
 
-        <div class="player-mini">
-            <div class="track-info">
-                <span id="t-name">Yüklənir...</span>
-                <div style="font-size: 9px; opacity: 0.6;">Zodiac Playlist</div>
-            </div>
-            <div class="controls">
-                <button class="p-btn" onclick="toggleP()" id="p-ctrl">▶</button>
-                <button class="n-btn" onclick="nextS()">⏭</button>
+        <div class="player-box">
+            <div id="t-title">Yüklənir...</div>
+            <div class="ctrls">
+                <button class="p-btn" onclick="togglePlay()" id="play-icon">▶</button>
+                <button class="n-btn" onclick="nextSong()">⏭</button>
             </div>
         </div>
     </div>
 
-    <div id="chat-ui">
-        <div class="c-head"><span>Zodiac Dəstək</span> <span onclick="toggleC()" style="cursor:pointer">✕</span></div>
+    <div id="c-win">
+        <div class="c-head">ZODIAC AI DƏSTƏK</div>
         <div class="c-body" id="chat-box">
-            <div class="m bot">Salam! Mən Zodiac süni intellekt botuyam. Sizə necə kömək edə bilərəm?</div>
+            <div class="m bot">Salam! Mən Zodiac AI. Azərbaycan dilində bütün suallarınızı cavablandırmağa hazıram. Buyurun!</div>
         </div>
         <div class="c-foot">
-            <input type="text" id="chat-in" placeholder="Mesajınızı yazın..." onkeypress="if(event.key=='Enter') sendM()">
+            <input type="text" id="chat-in" placeholder="Sualınızı yazın..." onkeypress="if(event.key=='Enter') chat()">
         </div>
     </div>
-    <button id="bot-trigger" onclick="toggleC()">💬</button>
+    <button id="bot-trigger" onclick="toggleChat()">💬</button>
 
-    <audio id="audio" onended="nextS()"></audio>
+    <audio id="audio" onended="nextSong()"></audio>
 
     <script>
-        const songs = [
-            {n: "Lotular - Mahir Ay", s: "Lotular(MP3_160K).mp3"},
-            {n: "Ara Usaqlari - Mahir Ay", s: "Ara Usaqlari(MP3_160K).mp3"},
-            {n: "AIS - Пыяла", s: "AIS - Пыяла x Sarışan hallar(M.mp3"}
+        // Musiqi Faylları (Tam dəqiq adlarla)
+        const playlist = [
+            {n: "MAHİR AY - LOTULAR", s: "Lotular(MP3_160K).mp3"},
+            {n: "MAHİR AY - ARA USAQLARI", s: "Ara Usaqlari(MP3_160K).mp3"},
+            {n: "AIS - ПЫЯЛА", s: "AIS - Пыяла x Sarışan hallar(M.mp3"}
         ];
-        let idx = 0;
+
+        let curIdx = 0;
         const player = document.getElementById('audio');
 
         function load(i) {
-            player.src = "/music/" + encodeURIComponent(songs[i].s);
-            document.getElementById('t-name').innerText = songs[i].n;
+            player.src = "/music/" + encodeURIComponent(playlist[i].s);
+            document.getElementById('t-title').innerText = playlist[i].n;
         }
-        load(idx);
+        load(curIdx);
 
-        function toggleP() {
+        function togglePlay() {
             if(player.paused) {
-                player.play().then(() => document.getElementById('p-ctrl').innerText = "||")
+                player.play().then(() => document.getElementById('play-icon').innerText = "||")
                 .catch(() => alert("Ekrana bir dəfə toxunun!"));
-            } else {
-                player.pause();
-                document.getElementById('p-ctrl').innerText = "▶";
-            }
+            } else { player.pause(); document.getElementById('play-icon').innerText = "▶"; }
         }
 
-        function nextS() {
-            idx = (idx + 1) % songs.length;
-            load(idx);
-            player.play();
-            document.getElementById('p-ctrl').innerText = "||";
+        function nextSong() {
+            curIdx = (curIdx + 1) % playlist.length;
+            load(curIdx); player.play();
+            document.getElementById('play-icon').innerText = "||";
         }
 
-        function toggleC() {
-            const ui = document.getElementById('chat-ui');
-            ui.style.display = (ui.style.display === 'flex') ? 'none' : 'flex';
+        function toggleChat() {
+            const win = document.getElementById('c-win');
+            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        function sendM() {
+        function chat() {
             const inp = document.getElementById('chat-in');
             const box = document.getElementById('chat-box');
             if(!inp.value) return;
 
             box.innerHTML += `<div class="m user">${inp.value}</div>`;
-            const val = inp.value.toLowerCase();
+            const q = inp.value.toLowerCase();
             inp.value = "";
             box.scrollTop = box.scrollHeight;
 
             setTimeout(() => {
-                let r = "Üzr istəyirəm, bunu tam başa düşmədim. TikTok və ya IG linkini yuxarıdakı xanaya qoyaraq video endirə bilərsiniz.";
+                let r = "Bunu hələ öyrənməmişəm, amma linki yuxarı qoyub video yükləyə bilərsiniz!";
                 
-                if(val.includes("salam")) r = "Salam, xoş gəldiniz! Sizə necə kömək edim?";
-                else if(val.includes("necesen") || val.includes("necəsən")) r = "Çox sağ olun, mən Zodiac sisteminin botuyam, hər şey əladır! Siz necəsiniz?";
-                else if(val.includes("sağ ol") || val.includes("sagol")) r = "Buyurun, xoşdur! Başqa sualınız var?";
-                else if(val.includes("video") || val.includes("yukle") || val.includes("yüklə")) r = "Videonu yükləmək üçün linki yuxarıdakı xanaya yapışdırıb 'ENDİR' düyməsinə basın.";
-                else if(val.includes("musiqi") || val.includes("mahnı")) r = "Musiqi pleyeri aşağıdadır. 'İrəli' düyməsi ilə mahnını dəyişə bilərsiniz.";
-                else if(val.includes("kim") && val.includes("yaratdı")) r = "Bu sistem Zodiac tərəfindən Azərbaycan istifadəçiləri üçün yaradılıb.";
-                else if(val.includes("islemir") || val.includes("işləmir")) r = "Lütfən linkin düzgün və profilin açıq olduğundan əmin olun.";
+                // Azərbaycan dilində geniş cavab bazası
+                if(q.includes("salam")) r = "Salam! Xoş gəldiniz. Sizə necə kömək edə bilərəm?";
+                else if(q.includes("necesen") || q.includes("necəsən")) r = "Mən Zodiac AI sistemiyəm, hər zaman oyağam! Siz necəsiniz?";
+                else if(q.includes("sag ol") || q.includes("sağ ol") || q.includes("tesekkur")) r = "Buyurun, hər zaman xidmətinizdəyik!";
+                else if(q.includes("islemir") || q.includes("problem") || q.includes("xeta")) r = "Linkin tam kopyalandığından və videonun silinmədiyindən əmin olun.";
+                else if(q.includes("kimsen") || q.includes("adın nə")) r = "Mən Zodiac-ın rəsmi dəstək botuyam.";
+                else if(q.includes("mahnı") || q.includes("musiqi")) r = "Aşağıdakı pleyerdə ən son hitlər var, dinləyə bilərsiniz.";
+                else if(q.includes("ais") || q.includes("səslənmir")) r = "Ais mahnısının linki artıq düzəldildi, '⏭' düyməsi ilə keçib yoxlayın.";
+                else if(q.includes("haralısan")) r = "Mən rəqəmsal dünyadayam, amma ürəyim Azərbaycanladır!";
+                else if(q.includes("kim yaratdı")) r = "Bu sistemi sizin üçün Zodiac Developer qrupu hazırlayıb.";
 
                 box.innerHTML += `<div class="m bot">${r}</div>`;
                 box.scrollTop = box.scrollHeight;
             }, 600);
         }
+
+        // Animated Background
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        let particles = [];
+        for(let i=0; i<40; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, d: Math.random()*0.5});
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "rgba(255, 215, 0, 0.2)";
+            particles.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+                p.y -= p.d; if(p.y < 0) p.y = canvas.height;
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
     </script>
 </body>
 </html>
 """
 
-@app.route('/music/<path:filename>')
-def get_music(filename):
-    return send_from_directory(os.getcwd(), filename)
+@app.route('/music/<path:f>')
+def g_m(f): return send_from_directory(os.getcwd(), f)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
