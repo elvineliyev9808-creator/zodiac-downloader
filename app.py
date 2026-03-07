@@ -3,7 +3,7 @@ import requests, os, threading, time
 
 app = Flask(__name__)
 
-# Render-də saytı oyaq saxlayan sistem
+# Serverin sönməməsi üçün Keep-Alive
 def keep_alive():
     while True:
         try: requests.get("http://127.0.0.1:10000")
@@ -18,123 +18,112 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC | ULTIMATE V30</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>TikTok Video Downloader | ZODIAC SSSTIK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #6366f1; --bg: #020617; --card: rgba(30, 41, 59, 0.75); }
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: white; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        :root { --main: #2af598; --blue: #009efd; --dark: #1e293b; }
+        body { background-color: #f3f7fa; font-family: 'Roboto', sans-serif; margin: 0; padding: 0; color: #333; }
         
-        /* Canlı Neon Fon */
-        .mesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%); }
-        .glow { position: absolute; width: 400px; height: 400px; background: var(--accent); filter: blur(130px); border-radius: 50%; opacity: 0.15; animation: move 15s infinite alternate; }
+        /* Header */
+        header { background: white; padding: 15px 5%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-weight: 900; font-size: 24px; color: var(--dark); }
+        .logo span { color: var(--blue); }
 
-        .container { background: var(--card); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); width: 92%; max-width: 390px; padding: 35px; border-radius: 35px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position: relative; z-index: 10; }
-        h1 { font-size: 30px; font-weight: 800; margin: 0; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tag { font-size: 10px; color: #6366f1; font-weight: 800; letter-spacing: 3px; margin-bottom: 30px; display: block; }
+        /* Hero Section */
+        .hero { background: linear-gradient(135deg, var(--blue) 0%, var(--main) 100%); padding: 60px 20px; text-align: center; color: white; }
+        .hero h1 { margin: 0 0 10px; font-size: 28px; font-weight: 900; }
+        .hero p { opacity: 0.9; font-size: 15px; margin-bottom: 30px; }
 
-        /* Yığcam Axtarış */
-        .input-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 22px; padding: 5px; display: flex; margin-bottom: 25px; }
-        input { flex: 1; background: transparent; border: none; padding: 12px 18px; color: white; outline: none; font-size: 14px; }
-        .btn-go { background: var(--accent); color: white; border: none; padding: 12px 22px; border-radius: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        /* Search Box */
+        .search-container { max-width: 700px; margin: -40px auto 0; padding: 0 15px; }
+        .search-form { background: white; padding: 10px; border-radius: 50px; display: flex; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        input { flex: 1; border: none; padding: 15px 25px; outline: none; font-size: 16px; border-radius: 50px; color: #444; }
+        .btn-dl { background: var(--dark); color: white; border: none; padding: 0 35px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 14px; }
+        .btn-dl:hover { background: #000; transform: scale(1.02); }
 
-        /* Player Kartı */
-        .p-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 15px; display: flex; align-items: center; gap: 15px; }
-        .p-btn { width: 45px; height: 45px; border-radius: 15px; background: var(--accent); border: none; color: white; cursor: pointer; font-size: 18px; }
-        .p-info { text-align: left; }
-        .p-title { font-size: 12px; font-weight: 700; color: #f8fafc; display: block; }
-        .p-sub { font-size: 9px; color: #94a3b8; }
+        /* Result Area */
+        .res-card { max-width: 500px; margin: 40px auto; background: white; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); animation: fadeInUp 0.5s ease; }
+        .save-btn { display: block; background: #22c55e; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-weight: 700; margin-top: 15px; font-size: 15px; }
 
-        /* AI Çat Pəncərəsi */
-        #c-win { display: none; position: fixed; bottom: 100px; right: 25px; width: 310px; height: 430px; background: #0f172a; border-radius: 25px; flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); z-index: 1000; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .c-h { background: var(--accent); padding: 18px; font-weight: 800; font-size: 13px; display: flex; justify-content: space-between; }
-        .c-b { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 12px; }
-        .msg { padding: 10px 14px; border-radius: 15px; max-width: 85%; line-height: 1.5; }
-        .bot { background: #1e293b; color: #cbd5e1; align-self: flex-start; }
-        .user { background: var(--accent); color: white; align-self: flex-end; }
-        .c-i { padding: 12px; background: #1e293b; display: flex; }
-        .c-i input { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 8px; flex: 1; color: white; font-size: 12px; }
+        /* Trend Player */
+        .mini-player { position: fixed; bottom: 30px; left: 30px; background: white; padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 1px solid #eee; z-index: 100; }
+        .p-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--blue); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .t-info { font-size: 12px; font-weight: 700; color: #555; }
 
-        #c-trigger { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent); border-radius: 20px; color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); z-index: 1001; }
+        /* AI Support Bot */
+        #chat-win { display: none; position: fixed; bottom: 100px; right: 30px; width: 320px; height: 400px; background: white; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); flex-direction: column; overflow: hidden; border: 1px solid #eee; z-index: 1000; }
+        .ch-h { background: var(--dark); color: white; padding: 15px; font-weight: 700; font-size: 14px; }
+        .ch-b { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; background: #f9f9f9; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 85%; line-height: 1.4; }
+        .bot { background: #e2e8f0; align-self: flex-start; color: #333; }
+        .user { background: var(--blue); color: white; align-self: flex-end; }
+        .ch-f { padding: 10px; border-top: 1px solid #eee; display: flex; background: white; }
+        .ch-f input { padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; }
 
-        @keyframes move { from { transform: translate(0,0); } to { transform: translate(40px, 40px); } }
+        #chat-trigger { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--dark); border-radius: 50%; color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1001; }
+
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="mesh"></div>
-    <div class="glow" style="top:20%; left:10%;"></div>
-    <div class="glow" style="bottom:10%; right:15%; background:#c084fc;"></div>
 
-    <div class="container">
-        <h1>ZODIAC</h1>
-        <span class="tag">ULTIMATE EDITION</span>
+    <header><div class="logo">ZODIAC<span>SSSTIK</span></div></header>
 
-        <form method="POST" class="input-box">
-            <input type="text" name="u" placeholder="Video linkini bura qoy..." required>
-            <button type="submit" class="btn-go">ENDİR</button>
+    <div class="hero">
+        <h1>TikTok Video Yükləyici</h1>
+        <p>TikTok videolarını loqosuz, sürətli və pulsuz endirin</p>
+    </div>
+
+    <div class="search-container">
+        <form method="POST" class="search-form">
+            <input type="text" name="u" placeholder="TikTok video linkini bura yapışdırın..." required>
+            <button type="submit" class="btn-dl">ENDİR</button>
         </form>
 
         {% if dl %}
-        <div style="margin-bottom: 25px;">
-            <a href="{{ dl }}" style="display:block; background:#fff; color:#000; text-decoration:none; padding:15px; border-radius:20px; font-weight:800; font-size:13px;" target="_blank">📥 VİDEONU YÜKLƏ</a>
+        <div class="res-card">
+            <div style="color: #22c55e; font-weight: 700; margin-bottom: 10px;">Video Hazırdır! ✅</div>
+            <a href="{{ dl }}" class="save-btn" target="_blank">📥 VİDEONU YÜKLƏ (.MP4)</a>
+            <p style="font-size: 12px; color: #888; margin-top: 15px;">Əgər yükləmə başlamasa, düyməyə basıb saxlayın və "Saxla" seçin.</p>
         </div>
         {% endif %}
-
-        <div class="p-card">
-            <button class="p-btn" onclick="tglM()" id="ctrl">▶</button>
-            <div class="p-info">
-                <span class="p-title">Trend Background Mix</span>
-                <span class="p-sub" id="sts">Audio System Active</span>
-            </div>
-        </div>
     </div>
 
-    <div id="c-win">
-        <div class="c-h"><span>ZODIAC AI DƏSTƏK</span> <span onclick="tglC()" style="cursor:pointer">✕</span></div>
-        <div class="c-b" id="cb"><div class="msg bot">Salam! Mən Zodiac AI. Azərbaycan dilində bütün suallarınızı cavablandırıram. Necə kömək edim?</div></div>
-        <div class="c-i"><input type="text" id="ci" placeholder="Yazın..." onkeypress="if(event.key=='Enter') snd()"></div>
+    <div class="mini-player">
+        <button class="p-btn" onclick="tglM()" id="ctrl">▶</button>
+        <div class="t-info">Trend Background Mix</div>
     </div>
-    <button id="c-trigger" onclick="tglC()">💬</button>
+
+    <div id="chat-win">
+        <div class="ch-h">ZODIAC DƏSTƏK BOTU</div>
+        <div class="ch-b" id="cb"><div class="msg bot">Salam! Mən Zodiac. Sizə necə kömək edə bilərəm?</div></div>
+        <div class="ch-f"><input type="text" id="ci" placeholder="Mesajınızı yazın..." onkeypress="if(event.key=='Enter') snd()"></div>
+    </div>
+    <button id="chat-trigger" onclick="tglC()">💬</button>
 
     <audio id="audio" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
 
     <script>
         const a = document.getElementById('audio');
         function tglM() {
-            if(a.paused) { a.play().then(()=> {document.getElementById('ctrl').innerText="||"; document.getElementById('sts').innerText="İndi Oxuyur...";}); }
-            else { a.pause(); document.getElementById('ctrl').innerText="▶"; document.getElementById('sts').innerText="Pauza Edildi"; }
+            if(a.paused) { a.play(); document.getElementById('ctrl').innerText = "||"; }
+            else { a.pause(); document.getElementById('ctrl').innerText = "▶"; }
         }
-        function tglC() { const w = document.getElementById('c-win'); w.style.display = (w.style.display==='flex')?'none':'flex'; }
+        function tglC() { const w = document.getElementById('chat-win'); w.style.display = (w.style.display==='flex')?'none':'flex'; }
         function snd() {
             const i = document.getElementById('ci'); const b = document.getElementById('cb');
             if(!i.value) return;
             b.innerHTML += `<div class="msg user">${i.value}</div>`;
             const v = i.value.toLowerCase(); i.value = ""; b.scrollTop = b.scrollHeight;
             setTimeout(() => {
-                let r = "Bunu hələ öyrənməmişəm. Amma video yükləmək üçün linki yuxarı qoya bilərsiniz.";
-                if(v.includes("salam")) r = "Salam! Xoş gördük. Sizə necə kömək edə bilərəm?";
-                else if(v.includes("necesen")) r = "Çox sağ olun! Mən botam, amma özümü əla hiss edirəm. Siz necəsiniz?";
-                else if(v.includes("islemir")) r = "Linki düzgün kopyaladığınızdan və videonun hər kəsə açıq olduğundan əmin olun.";
-                else if(v.includes("sagol") || v.includes("təşəkkür")) r = "Xoşdur! Hər zaman xidmətinizdəyik.";
-                else if(v.includes("haralisan")) r = "Mən buludlarda yaşayıram, amma doğma dilim Azərbaycandır!";
+                let r = "Üzr istəyirəm, başa düşmədim. TikTok linkini yuxarıya qoyub 'ENDİR' düyməsinə basın.";
+                if(v.includes("salam")) r = "Salam! Xoş gördük. Sizə video yükləməkdə necə kömək edim?";
+                else if(v.includes("necesen")) r = "Çox sağ olun, yaxşıyam! Siz necəsiniz?";
+                else if(v.includes("islemir")) r = "Lütfən linkin düzgün olduğundan və videonun silinmədiyindən əmin olun.";
+                else if(v.includes("sagol") || v.includes("təşəkkür")) r = "Buyurun, hər zaman xidmətinizdəyik!";
                 b.innerHTML += `<div class="msg bot">${r}</div>`; b.scrollTop = b.scrollHeight;
             }, 600);
         }
     </script>
 </body>
 </html>
-"""
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    dl = None
-    if request.method == 'POST':
-        u = request.form.get('u')
-        try:
-            r = requests.get(f"https://www.tikwm.com/api/?url={u}").json()
-            dl = r['data']['play']
-        except: pass
-    return render_template_string(HTML, dl=dl)
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
