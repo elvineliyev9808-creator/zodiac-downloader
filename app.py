@@ -3,7 +3,6 @@ import requests, os, threading, time
 
 app = Flask(__name__)
 
-# Render-in sönməməsi üçün
 def keep_alive():
     while True:
         try: requests.get("http://127.0.0.1:10000")
@@ -18,121 +17,192 @@ HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZODIAC | Downloader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+    <title>ZODIAC | Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --bg: #050505; }
-        * { box-sizing: border-box; transition: 0.3s; }
-        
-        body { background: var(--bg); color: #fff; font-family: 'Space Grotesk', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
-
-        /* Arxa fon video effekti (Musiqisiz, səssiz) */
-        .bg-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.1; filter: grayscale(1) blur(5px); pointer-events: none; object-fit: cover; }
-        
-        .glass-panel { 
-            background: rgba(255, 255, 255, 0.02); 
-            backdrop-filter: blur(25px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            width: 90%; 
-            max-width: 400px; 
-            padding: 50px 30px; 
-            border-radius: 40px; 
-            text-align: center; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            border-top: 2px solid var(--neon);
+        :root { 
+            --gold: #ffd700; 
+            --accent: #00f2ff;
+            --bg: #000000;
+            --glass: rgba(255, 255, 255, 0.03);
         }
-
-        h1 { font-family: 'Syncopate', sans-serif; font-size: 26px; letter-spacing: 6px; margin: 0; color: #fff; text-shadow: 0 0 10px var(--neon); }
-        .status { font-size: 9px; color: var(--neon); letter-spacing: 3px; text-transform: uppercase; margin: 15px 0 45px; opacity: 0.6; }
-
-        .input-group { position: relative; margin-bottom: 25px; }
-        input { 
-            width: 100%; 
-            background: rgba(0,0,0,0.5); 
-            border: 1px solid #222; 
-            padding: 18px; 
-            border-radius: 12px; 
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg); 
             color: #fff; 
-            font-size: 14px; 
-            outline: none; 
-            text-align: center;
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            overflow: hidden;
         }
-        input:focus { border-color: var(--neon); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
 
-        .dl-btn { 
-            width: 100%; 
-            background: #fff; 
-            color: #000; 
-            border: none; 
-            padding: 16px; 
-            border-radius: 12px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            font-size: 13px; 
+        /* Canlı Fon */
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+            z-index: -2;
+        }
+        
+        .aura {
+            position: fixed;
+            width: 500px; height: 500px;
+            background: var(--accent);
+            filter: blur(150px);
+            opacity: 0.05;
+            border-radius: 50%;
+            animation: float 20s infinite alternate;
+            z-index: -1;
+        }
+
+        /* Haptic Container */
+        .main-card {
+            background: var(--glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 420px;
+            padding: 60px 30px;
+            border-radius: 50px;
+            text-align: center;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .main-card:active { transform: scale(0.98); }
+
+        h1 { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 36px; 
+            background: linear-gradient(180deg, #fff 0%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: 10px;
+        }
+
+        .service-tag {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 6px 15px;
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--accent);
+            font-size: 10px;
+            font-weight: 800;
             letter-spacing: 2px;
+            border-radius: 50px;
             text-transform: uppercase;
         }
-        .dl-btn:hover { background: var(--neon); transform: scale(1.02); }
 
-        .result { margin-top: 30px; padding: 20px; background: rgba(0, 242, 255, 0.05); border-radius: 15px; border: 1px dashed var(--neon); animation: fadeIn 0.5s; }
-        .result a { color: var(--neon); text-decoration: none; font-weight: 700; font-size: 14px; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .input-wrapper {
+            margin-top: 50px;
+            position: relative;
+        }
 
-        /* Bot Trigger */
-        #bot-ui { display: none; position: fixed; bottom: 90px; right: 20px; width: 280px; height: 350px; background: #000; border: 1px solid #222; border-radius: 20px; flex-direction: column; overflow: hidden; z-index: 100; }
-        .b-h { background: #111; padding: 15px; font-size: 11px; font-weight: 700; border-bottom: 1px solid #222; }
-        .b-b { flex: 1; padding: 15px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; }
-        .m { padding: 10px; border-radius: 10px; max-width: 80%; }
-        .bot { background: #111; align-self: flex-start; }
-        .user { background: var(--neon); color: #000; align-self: flex-end; }
-        .b-f { padding: 10px; border-top: 1px solid #222; }
-        .b-f input { padding: 10px; font-size: 11px; }
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 22px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+        }
 
-        #bot-btn { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: #111; border: 1px solid #222; border-radius: 50%; color: var(--neon); cursor: pointer; font-size: 20px; }
+        input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
+        }
+
+        .btn-premium {
+            width: 100%;
+            margin-top: 15px;
+            padding: 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-premium:active {
+            transform: scale(0.95);
+            background: var(--accent);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 25px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            animation: slideUp 0.5s ease;
+        }
+
+        .result-box a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 13px;
+            display: block;
+        }
+
+        .footer-text {
+            position: fixed;
+            bottom: 30px;
+            font-size: 11px;
+            color: #444;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 50px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <iframe class="bg-video" src="https://www.youtube.com/embed/videoseries?list=PLPazg0nI_S06R0lP5oG15w0607K1h4-0z&autoplay=1&mute=1&loop=1" allow="autoplay"></iframe>
+    <div class="bg-gradient"></div>
+    <div class="aura"></div>
 
-    <div class="glass-panel">
+    <div class="main-card">
         <h1>ZODIAC</h1>
-        <div class="status">System Online // No Audio</div>
+        <div class="service-tag">7/24 Xidmətinizdəyik</div>
 
-        <form method="POST">
-            <div class="input-group">
-                <input type="text" name="u" placeholder="TikTok linkini daxil edin" required>
-            </div>
-            <button type="submit" class="dl-btn">Yüklə</button>
+        <form method="POST" class="input-wrapper">
+            <input type="text" name="u" placeholder="Linki bura yapışdırın" required autocomplete="off">
+            <button type="submit" class="btn-premium">Endirməni Başlat</button>
         </form>
 
         {% if dl %}
-            <div class="result">
-                <a href="{{ dl }}" target="_blank">>> VİDEONU SAXLA (MP4)</a>
+            <div class="result-box">
+                <a href="{{ dl }}" target="_blank">📥 VİDEONU QALEREYAYA YÜKLƏ</a>
             </div>
         {% endif %}
     </div>
 
-    <div id="bot-ui">
-        <div class="b-h">ZODIAC AI DƏSTƏK</div>
-        <div class="b-b" id="cb"><div class="m bot">Salam! Musiqi bölməsi ləğv edildi. Necə kömək edə bilərəm?</div></div>
-        <div class="b-f"><input type="text" id="ci" placeholder="Yaz..." onkeypress="if(event.key=='Enter') snd()"></div>
-    </div>
-    <button id="bot-btn" onclick="tglC()">💬</button>
+    <div class="footer-text">ZODIAC AI PLATFORM // 2026</div>
 
     <script>
-        function tglC() { const w = document.getElementById('bot-ui'); w.style.display = (w.style.display==='flex')?'none':'flex'; }
-        function snd() {
-            const i = document.getElementById('ci'); const b = document.getElementById('cb');
-            if(!i.value) return;
-            b.innerHTML += `<div class="m user">${i.value}</div>`;
-            const v = i.value.toLowerCase(); i.value = ""; b.scrollTop = b.scrollHeight;
-            setTimeout(() => {
-                let r = "Linki yuxarı yapışdırıb 'Yüklə' düyməsinə basaraq videonu götürə bilərsən.";
-                if(v.includes("salam")) r = "Salam! Sistem tam hazırdır.";
-                b.innerHTML += `<div class="m bot">${r}</div>`; b.scrollTop = b.scrollHeight;
-            }, 500);
-        }
+        // Haptic touch effect simulation
+        document.querySelectorAll('button, input, .main-card').forEach(el => {
+            el.addEventListener('touchstart', () => {
+                if (window.navigator.vibrate) window.navigator.vibrate(10);
+            });
+        });
     </script>
 </body>
 </html>
